@@ -1,3 +1,5 @@
+from email.mime import image
+from operator import is_
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -17,6 +19,8 @@ class Member(AbstractUser):
     is_staff = models.BooleanField()
     job = models.CharField(max_length=10, choices=Job.choices)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True)
+    # 遅刻したかどうか→遅刻した場合はキャッシュ配布の時最小単位を配布
+    is_on_time = models.BooleanField()
 
 
 class Transaction(models.Model):
@@ -45,6 +49,7 @@ class Star(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
+    image = models.ImageField(upload_to="product_images")
     price = models.IntegerField(validators=[MinValueValidator(0)])
 
 

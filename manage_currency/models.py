@@ -1,7 +1,3 @@
-from email.mime import image
-from operator import is_
-from tokenize import group
-from turtle import Turtle
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator

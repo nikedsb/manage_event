@@ -16,7 +16,7 @@ class Member(AbstractUser):
         DESIGINER = "Designer", "デザイナー"
 
     # オフィスメンバーかどうか
-    is_staff = models.BooleanField()
+    is_employee = models.BooleanField()
     job = models.CharField(max_length=10, choices=Job.choices)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True)
     # 遅刻したかどうか→遅刻した場合はキャッシュ配布の時最小単位を配布

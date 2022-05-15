@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  db:
+    restart: always
+  web:
+    restart: always
+    build:
+      target: production
+    volumes:
+      - staticfiles:/app/staticfiles
+      - media:/app/media
+    expose:
+      - 8000
+  nginx:
+    restart: always
+    image: nginx
+    ports:
+      - 80:80
+    volumes:
+      - staticfiles:/staticfiles
+      - media:/media
+      - ./nginx:/etc/nginx/conf.d
+
+volumes:
+  staticfiles:
+  media:

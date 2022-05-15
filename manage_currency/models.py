@@ -1,5 +1,7 @@
 from email.mime import image
 from operator import is_
+from tokenize import group
+from turtle import Turtle
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -16,20 +18,20 @@ class Member(AbstractUser):
         DESIGINER = "Designer", "デザイナー"
 
     # オフィスメンバーかどうか
-    is_employee = models.BooleanField()
-    job = models.CharField(max_length=10, choices=Job.choices)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True)
+    is_employee = models.BooleanField(default=False)
+    job = models.CharField(max_length=10, choices=Job.choices, default=Job.ENGINEER)
+    group = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
     # 遅刻したかどうか→遅刻した場合はキャッシュ配布の時最小単位を配布
-    is_on_time = models.BooleanField()
+    is_late = models.BooleanField(default=False)
 
 
 class Transaction(models.Model):
     # トレード申請について(以下の二つは一意)
-    requested_by = models.ForeignKey(Member, on_delete=models.CASCADE)
-    trade_with = models.ForeignKey(Member, on_delete=models.CASCADE)
+    requested_by = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="requested_by")
+    trade_with = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="trade_width")
     # 財移動の方向
-    send_from = models.ForeignKey(Member, on_delete=models.CASCADE)
-    send_to = models.ForeignKey(Member, on_delete=models.CASCADE)
+    send_from = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="send_from")
+    send_to = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="send_to")
     # やり取りされる財の数量
     star = models.IntegerField(validators=[MinValueValidator(0)])
     cash = models.IntegerField(validators=[MinValueValidator(0)])

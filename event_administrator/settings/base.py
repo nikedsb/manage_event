@@ -23,7 +23,6 @@ ALLOWED_HOSTS = [s.strip() for s in os.getenv("ALLOWED_HOSTS", "").split(",") if
 # Application definition
 
 INSTALLED_APPS = [
-    "manage_currency",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -31,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "pipeline",
+    "manage_currency",
 ]
 
 MIDDLEWARE = [

@@ -162,3 +162,5 @@ PIPELINE = {
     },
     "JAVASCRIPT": {},
 }
+
+AUTH_USER_MODEL = "manage_currency.Member"

@@ -4,11 +4,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 class Team(models.Model):
-    leader = models.ForeignKey("User", on_delete=models.CASCADE)
+    leader = models.ForeignKey("Member", on_delete=models.CASCADE)
     score = models.IntegerField(validators=[MinValueValidator(0)])
 
 
-class User(AbstractUser):
+class Member(AbstractUser):
     class Job(models.TextChoices):
         ENGINEER = "Engineer", "エンジニア"
         DESIGINER = "Designer", "デザイナー"
@@ -21,11 +21,11 @@ class User(AbstractUser):
 
 class Transaction(models.Model):
     # トレード申請について(以下の二つは一意)
-    requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    trade_with = models.ForeignKey(User, on_delete=models.CASCADE)
+    requested_by = models.ForeignKey(Member, on_delete=models.CASCADE)
+    trade_with = models.ForeignKey(Member, on_delete=models.CASCADE)
     # 財移動の方向
-    send_from = models.ForeignKey(User, on_delete=models.CASCADE)
-    send_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    send_from = models.ForeignKey(Member, on_delete=models.CASCADE)
+    send_to = models.ForeignKey(Member, on_delete=models.CASCADE)
     # やり取りされる財の数量
     star = models.IntegerField(validators=[MinValueValidator(0)])
     cash = models.IntegerField(validators=[MinValueValidator(0)])
@@ -34,12 +34,12 @@ class Transaction(models.Model):
 
 
 class Wallet(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(Member, on_delete=models.CASCADE)
     cash = models.IntegerField(validators=[MinValueValidator(0)])
 
 
 class Star(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(Member, on_delete=models.CASCADE)
     star = models.IntegerField(validators=[MinValueValidator(0)])
 
 
@@ -49,7 +49,7 @@ class Product(models.Model):
 
 
 class Purchase(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Member, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     is_delivered = models.BooleanField()
 

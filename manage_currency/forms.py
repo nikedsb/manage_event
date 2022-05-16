@@ -6,4 +6,4 @@ from .models import Member
 class SignUpForm(UserCreationForm):
     class Meta:
         model = Member
-        fields = ("username", "job", "password1", "password2")
+        fields = ("username", "job")

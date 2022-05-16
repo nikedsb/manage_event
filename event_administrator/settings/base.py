@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "pipeline",
+    "django_bootstrap5",
     "manage_currency",
 ]
 
@@ -153,12 +154,18 @@ PIPELINE = {
     "UGLIFYJS_BINARY": "npx terser",
     "UGLIFYJS_ARGUMENTS": "--compress --mangle",
     "STYLESHEETS": {
-        # "style": {
-        #     "source_filenames": [
-        #         "app_name/css/style.scss",
-        #     ],
-        #     "output_filename": "app_name/css/style.css",
-        # },
+        "base": {
+            "source_filenames": [
+                "manage_currency/css/base.scss",
+            ],
+            "output_filename": "manage_currency/css/base.css",
+        },
+        "top": {
+            "source_filenames": [
+                "manage_currency/css/top.scss",
+            ],
+            "output_filename": "manage_currency/css/top.css",
+        },
     },
     "JAVASCRIPT": {},
 }

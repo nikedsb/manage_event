@@ -32,11 +32,47 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
     )
+    list_display = ["username", "is_employee", "job", "group", "is_present", "is_late"]
+    list_filter = ("is_present", "is_employee", "is_staff", "is_superuser")
+
+
+class WalletAdmin(admin.ModelAdmin):
+    list_display = ["user", "cash"]
+
+
+class StarAdmin(admin.ModelAdmin):
+    list_display = ["user", "star"]
+
+
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ["name", "price"]
+
+
+class PurchaseAdmin(admin.ModelAdmin):
+    list_display = ["user", "product", "is_delivered"]
+    list_filter = ("is_delivered",)
+
+
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = [
+        "requested_by",
+        "trade_with",
+        "send_from",
+        "send_to",
+        "star",
+        "cash",
+        "is_done",
+    ]
+
+
+class TeamAdmin(admin.ModelAdmin):
+    list_display = ["leader", "score"]
 
 
 admin.site.register(Member, CustomUserAdmin)
-admin.site.register(Wallet, admin.ModelAdmin)
-admin.site.register(Star, admin.ModelAdmin)
-admin.site.register(Product, admin.ModelAdmin)
-admin.site.register(Purchase, admin.ModelAdmin)
-admin.site.register(Transaction, admin.ModelAdmin)
+admin.site.register(Wallet, WalletAdmin)
+admin.site.register(Star, StarAdmin)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(Purchase, PurchaseAdmin)
+admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Team, TeamAdmin)

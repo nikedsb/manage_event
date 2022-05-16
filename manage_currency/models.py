@@ -1,3 +1,4 @@
+from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -6,6 +7,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 class Team(models.Model):
     leader = models.ForeignKey("Member", on_delete=models.CASCADE)
     score = models.IntegerField(validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return self.leader.username + "チーム"
 
 
 class Member(AbstractUser):
@@ -18,7 +22,11 @@ class Member(AbstractUser):
     job = models.CharField(max_length=10, choices=Job.choices, default=Job.ENGINEER)
     group = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
     # 遅刻したかどうか→遅刻した場合はキャッシュ配布の時最小単位を配布
+    is_present = models.BooleanField(default=False)
     is_late = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.username
 
 
 class Transaction(models.Model):
@@ -39,10 +47,16 @@ class Wallet(models.Model):
     user = models.OneToOneField(Member, on_delete=models.CASCADE)
     cash = models.IntegerField(validators=[MinValueValidator(0)])
 
+    def __str__(self):
+        return self.user.username + "'s Cash"
+
 
 class Star(models.Model):
     user = models.OneToOneField(Member, on_delete=models.CASCADE)
     star = models.IntegerField(validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return self.user.username + "'s Star"
 
 
 class Product(models.Model):
@@ -50,11 +64,21 @@ class Product(models.Model):
     image = models.ImageField(upload_to="product_images")
     price = models.IntegerField(validators=[MinValueValidator(0)])
 
+    def __str__(self):
+        return self.name
+
 
 class Purchase(models.Model):
     user = models.ForeignKey(Member, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     is_delivered = models.BooleanField()
+
+    def __str__(self):
+        if self.is_delivered:
+            is_done = "受け渡し済み"
+        else:
+            is_done = "未受け渡し"
+        return self.user.username + ":" + self.product.name + " " + is_done
 
 
 # class Quiz(models.Model):

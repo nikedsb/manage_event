@@ -171,3 +171,7 @@ PIPELINE = {
 }
 
 AUTH_USER_MODEL = "manage_currency.Member"
+
+LOGIN_URL = "/event/login/"
+LOGIN_REDIRECT_URL = "/event/top/"
+LOGOUT_REDIRECT_URL = LOGIN_URL

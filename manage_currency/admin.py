@@ -1,6 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Member, Team, Wallet, Star, Product, Purchase, Transaction
+from .models import (
+    Member,
+    Team,
+    Wallet,
+    Star,
+    Product,
+    Purchase,
+    Transaction,
+    Answer,
+    Quiz,
+    QuizOption,
+    FinishedQuiz,
+)
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
@@ -69,6 +81,22 @@ class TeamAdmin(admin.ModelAdmin):
     list_display = ["leader", "score"]
 
 
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ["quiz", "correct_option"]
+
+
+class QuizOptionAdmin(admin.ModelAdmin):
+    list_display = ["quiz", "option"]
+
+
+class QuizAdmin(admin.ModelAdmin):
+    list_display = ["content", "answer", "primary", "is_active"]
+
+
+class FinishedQuizAdmin(admin.ModelAdmin):
+    list_display = ["team"]
+
+
 admin.site.register(Member, CustomUserAdmin)
 admin.site.register(Wallet, WalletAdmin)
 admin.site.register(Star, StarAdmin)
@@ -76,3 +104,7 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(Purchase, PurchaseAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Team, TeamAdmin)
+admin.site.register(Answer, AnswerAdmin)
+admin.site.register(Quiz, QuizAdmin)
+admin.site.register(QuizOption, QuizOptionAdmin)
+admin.site.register(FinishedQuiz, FinishedQuizAdmin)

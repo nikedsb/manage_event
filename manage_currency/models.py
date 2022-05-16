@@ -1,7 +1,9 @@
 from pyexpat import model
+from click import option
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.forms import CharField
 
 # Create your models here.
 class Team(models.Model):
@@ -81,14 +83,23 @@ class Purchase(models.Model):
         return self.user.username + ":" + self.product.name + " " + is_done
 
 
-# class Quiz(models.Model):
-#     answer=models.OneToOneField("Answer", on_delete=models.CASCADE)
-#     option=
-
-# class Answer(models.Model):
-#     quiz=models.OneToOneField(Quiz, on_delete=models.CASCADE)
-#     correct_option=
+class Quiz(models.Model):
+    content = models.CharField(max_length=500)
+    answer = models.OneToOneField("Answer", on_delete=models.CASCADE)
+    primary = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+    is_active = models.BooleanField()
 
 
-# class QuizOption(models.Model):
-#     quiz=
+class Answer(models.Model):
+    quiz = models.OneToOneField(Quiz, on_delete=models.CASCADE)
+    correct_option = models.OneToOneField("QuizOption", on_delete=models.CASCADE)
+
+
+class QuizOption(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    option = models.CharField(max_length=140)
+
+
+class FinishedQuiz(models.Model):
+    team = models.OneToOneField(Team, on_delete=models.CASCADE)
+    quizes = models.ManyToManyField(Quiz)

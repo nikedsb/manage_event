@@ -91,6 +91,7 @@ class TeamAdmin(admin.ModelAdmin):
             # print(culc_team_num("Engineer"))
             # print(culc_team_num("Designer"))
             print(create_team(culc_team_num("Engineer")))
+            print(create_team(culc_team_num("Designer")))
 
         return super().changelist_view(request)
 

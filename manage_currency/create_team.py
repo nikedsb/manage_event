@@ -26,6 +26,7 @@ def culc_team_num(job):
     mentors_num = mentors.count()
 
     team_dict = {
+        "job": job,
         "team_num": team_num,
         "people_per_team": people_per_team,
         "players": players,
@@ -89,25 +90,20 @@ def create_team(team_dict):
         leader.group = team
         leader.save()
     # チームが入ってないものだけ取り出す。
-    teams = Team.objects.all()
+    teams = Team.objects.filter(leader__job=team_dict["job"])
     normal_players = all_players.filter(group=None)
-    normal_players_num = normal_players.count()
     print("チームなし人間", normal_players, normal_players.count())
     for i, team in enumerate(teams):
         members_num = people_per_team - 1
-        if (i + 1) * members_num <= normal_players_num:
-            team_members = normal_players[i * members_num : (i + 1) * members_num]
-            print(i, "チームメンバー", team_members)
-            print("初め", i * members_num)
-            print("終わり", (i + 1) * members_num)
+        print("現状の無所属人数", normal_players.count())
+        if members_num <= normal_players.count():
+            team_members = normal_players[:members_num]
+            print(i, team_members)
         else:
-            team_members = normal_players[i * members_num : (normal_players_num - 1)]
-            print(i, "チームメンバーelse", team_members)
-            print("else 初め", i * members_num)
-            print("else 終わり", normal_players_num)
+            team_members = normal_players[: normal_players.count()]
+            print("else", i, team_members)
         for team_member in team_members:
             team_member.group = team
             team_member.save()
 
-    no_team_members = normal_players.filter(group=None)
-    return no_team_members
+    return normal_players

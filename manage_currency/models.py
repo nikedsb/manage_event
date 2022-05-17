@@ -7,7 +7,7 @@ from django.forms import CharField
 
 # Create your models here.
 class Team(models.Model):
-    leader = models.ForeignKey("Member", on_delete=models.CASCADE)
+    leader = models.ForeignKey("Member", on_delete=models.SET_NULL, null=True)
     score = models.IntegerField(validators=[MinValueValidator(0)])
 
     def __str__(self):
@@ -22,7 +22,7 @@ class Member(AbstractUser):
     # オフィスメンバーかどうか
     is_employee = models.BooleanField(default=False)
     job = models.CharField(max_length=10, choices=Job.choices, default=Job.ENGINEER)
-    group = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
+    group = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True)
     # 遅刻したかどうか→遅刻した場合はキャッシュ配布の時最小単位を配布
     is_present = models.BooleanField(default=False)
     is_late = models.BooleanField(default=False)

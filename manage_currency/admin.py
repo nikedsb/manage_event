@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.http import response
 from .models import (
     Member,
     Team,
@@ -13,6 +14,7 @@ from .models import (
     QuizOption,
     FinishedQuiz,
 )
+from .create_team import culc_team_num, create_team
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
@@ -23,6 +25,7 @@ class CustomUserAdmin(UserAdmin):
             {
                 "fields": (
                     "job",
+                    "is_present",
                     "is_employee",
                     "group",
                     "is_late",
@@ -37,6 +40,7 @@ class CustomUserAdmin(UserAdmin):
             {
                 "fields": (
                     "job",
+                    "is_present",
                     "is_employee",
                     "group",
                     "is_late",
@@ -79,6 +83,16 @@ class TransactionAdmin(admin.ModelAdmin):
 
 class TeamAdmin(admin.ModelAdmin):
     list_display = ["leader", "score"]
+
+    def changelist_view(self, request, extra_context=None):
+        if request.method == "POST" and request.POST.getlist("create_team"):
+            # チーム分け処理
+            # エンジニア
+            # print(culc_team_num("Engineer"))
+            # print(culc_team_num("Designer"))
+            print(create_team(culc_team_num("Engineer")))
+
+        return super().changelist_view(request)
 
 
 class AnswerAdmin(admin.ModelAdmin):

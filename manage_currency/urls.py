@@ -1,6 +1,5 @@
 from os import name
 from re import template
-from django import views
 from django.urls import path
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
@@ -29,9 +28,9 @@ urlpatterns = [
     ),
     path("quiz/", TemplateView.as_view(template_name="manage_currency/top.html"), name="quiz"),
     path("trade/", TemplateView.as_view(template_name="manage_currency/top.html"), name="trade"),
-    path(
-        "create_team/",
-        TemplateView.as_view(template_name="manage_currency/top.html"),
-        name="create_team",
-    ),
+    #     path(
+    #         "create_team/",
+    #         create_team,
+    #         name="create_team",
+    #     ),
 ]

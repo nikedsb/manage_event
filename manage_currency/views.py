@@ -1,11 +1,13 @@
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, CreateView, FormView
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Member, Team, Wallet, Star, Product, Purchase, Transaction
 from .forms import SignUpForm
+
 
 # Create your views here.
 
@@ -24,3 +26,12 @@ class SignUpView(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+# def create_team(request):
+#     if request.method == "POST":
+#         # チーム分けアルゴリズムを書く
+#         print(request.POST)
+#         return
+#     else:
+#         if request.user.is_superuser:
+#             return reverse_lazy("admin:manage_currency_Team_changelist")
+#         # return HttpResponseBadRequest()

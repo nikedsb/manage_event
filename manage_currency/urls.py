@@ -1,3 +1,4 @@
+from os import name
 from re import template
 from django import views
 from django.urls import path
@@ -28,4 +29,9 @@ urlpatterns = [
     ),
     path("quiz/", TemplateView.as_view(template_name="manage_currency/top.html"), name="quiz"),
     path("trade/", TemplateView.as_view(template_name="manage_currency/top.html"), name="trade"),
+    path(
+        "create_team",
+        TemplateView().as_view(template_name="manage_currency/top.html"),
+        name="create_team",
+    ),
 ]

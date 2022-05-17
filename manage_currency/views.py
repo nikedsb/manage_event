@@ -22,3 +22,5 @@ class SignUpView(CreateView):
         Star.objects.create(user=self.object, star=3)
 
         return HttpResponseRedirect(self.get_success_url())
+
+

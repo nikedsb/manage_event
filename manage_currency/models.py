@@ -85,21 +85,21 @@ class Purchase(models.Model):
 
 class Quiz(models.Model):
     content = models.CharField(max_length=500)
-    answer = models.OneToOneField("Answer", on_delete=models.CASCADE)
+    answer = models.OneToOneField("Answer", on_delete=models.CASCADE, related_name="answer_of_quiz")
     primary = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     is_active = models.BooleanField()
 
 
 class Answer(models.Model):
-    quiz = models.OneToOneField(Quiz, on_delete=models.CASCADE)
+    quiz = models.OneToOneField(Quiz, on_delete=models.CASCADE, related_name="quiz_of_answer")
     correct_option = models.OneToOneField("QuizOption", on_delete=models.CASCADE)
 
 
 class QuizOption(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="quiz_of_option")
     option = models.CharField(max_length=140)
 
 
 class FinishedQuiz(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
-    quizes = models.ManyToManyField(Quiz)
+    quizes = models.ManyToManyField(Quiz, related_name="quizes")

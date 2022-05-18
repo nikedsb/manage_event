@@ -14,7 +14,7 @@ from .models import (
     QuizOption,
     FinishedQuiz,
 )
-from .create_team import culc_team_num, create_team
+from .create_team import culc_team_num, create_team, create_late_team, assign_no_team_players
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
@@ -55,6 +55,12 @@ class CustomUserAdmin(UserAdmin):
 class WalletAdmin(admin.ModelAdmin):
     list_display = ["user", "cash"]
 
+    def changelist_view(self, request, extra_context=None):
+        if request.method == "POST" and request.POST.getlist("distrib_cash"):
+            print("配布開始")
+
+        return super().changelist_view(request)
+
 
 class StarAdmin(admin.ModelAdmin):
     list_display = ["user", "star"]
@@ -86,13 +92,9 @@ class TeamAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.getlist("create_team"):
-            # チーム分け処理
-            # エンジニア
-            # print(culc_team_num("Engineer"))
-            # print(culc_team_num("Designer"))
-            print(create_team(culc_team_num("Engineer")))
-            print(create_team(culc_team_num("Designer")))
-
+            assign_no_team_players(create_team(culc_team_num("Engineer")), "Engineer")
+            assign_no_team_players(create_team(culc_team_num("Designer")), "Designer")
+            create_late_team()
         return super().changelist_view(request)
 
 

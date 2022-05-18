@@ -1,6 +1,9 @@
 from tokenize import group
 
 from django.db import IntegrityError
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     Member,
     Team,
@@ -14,19 +17,22 @@ from .models import (
     QuizOption,
     FinishedQuiz,
 )
+from .variables import late_leader_name
 
 # チーム数の算出
 def culc_team_num(job):
     # チーム数初期化
     team_num = 0
     people_per_team = 0
-    # プレイヤー全体の数
-    players = Member.objects.filter(is_present=True, is_late=False, job=job, group=None)
+    # プレイヤー全体の数(遅刻チームのリーダーと管理者は除く)
+    players = Member.objects.filter(is_present=True, is_late=False, job=job, group=None).exclude(
+        Q(username=late_leader_name) | Q(is_superuser=True)
+    )
     players_num = players.count()
     # 雇用中(リーダー候補)の数
     mentors = Member.objects.filter(
         is_present=True, is_late=False, job=job, is_employee=True, group=None
-    )
+    ).exclude(Q(username=late_leader_name) | Q(is_superuser=True))
     mentors_num = mentors.count()
 
     team_dict = {
@@ -41,7 +47,7 @@ def culc_team_num(job):
         return team_dict
     # 　比率の整数除算
     ratio_int = players_num // mentors_num
-
+    print(ratio_int)
     if ratio_int >= 4:
         # メンターにつき人数が多すぎる時→どうしようもないのでそのまま
         # メンターにつき人数がちょうどよかった(4,5人)の時→そのまま
@@ -117,4 +123,36 @@ def create_team(team_dict):
             team_member.group = team
             team_member.save()
 
-    return normal_players
+    return {
+        "no_team_players": normal_players,
+        "people_per_team": people_per_team,
+    }
+
+
+def assign_no_team_players(no_team_dict, job):
+    no_team_players = no_team_dict["no_team_players"]
+    people_per_team = no_team_dict["people_per_team"]
+    teams = Team.objects.filter(leader__job=job).exclude(leader__username=late_leader_name)
+    for team in teams:
+        try:
+            no_team_player = no_team_players[0:1].get()
+            no_team_player.group = team
+            no_team_player.save()
+            no_team_players = no_team_players.filter(group=None)
+        except ObjectDoesNotExist:
+            break
+
+
+# クイズへの途中参加はできたレベルの遅刻のチーム
+def create_late_team():
+    late_leader = get_object_or_404(Member, username=late_leader_name)
+    late_team = Team.objects.create(leader=late_leader, score=0)
+    late_leader.group = late_team
+    late_leader.save()
+    # 雇用メンバーも遅刻する可能性がある、その場合は問答無用で遅刻チームへ。
+    late_people = Member.objects.filter(is_present=True, is_late=True)
+    if late_people.exists():
+        for late_person in late_people:
+            late_person.group = late_team
+            print(late_person.username)
+            late_person.save()

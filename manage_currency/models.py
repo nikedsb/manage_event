@@ -7,9 +7,9 @@ from django.forms import CharField
 
 # Create your models here.
 class Team(models.Model):
-    leader = models.ForeignKey("Member", on_delete=models.SET_NULL, null=True)
+    leader = models.OneToOneField("Member", on_delete=models.SET_NULL, null=True)
     score = models.IntegerField(validators=[MinValueValidator(0)])
-
+    
     def __str__(self):
         return self.leader.username + "チーム"
 

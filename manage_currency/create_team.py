@@ -1,4 +1,6 @@
 from tokenize import group
+
+from django.db import IntegrityError
 from .models import (
     Member,
     Team,
@@ -19,10 +21,12 @@ def culc_team_num(job):
     team_num = 0
     people_per_team = 0
     # プレイヤー全体の数
-    players = Member.objects.filter(is_present=True, is_late=False, job=job)
+    players = Member.objects.filter(is_present=True, is_late=False, job=job, group=None)
     players_num = players.count()
     # 雇用中(リーダー候補)の数
-    mentors = Member.objects.filter(is_present=True, is_late=False, job=job, is_employee=True)
+    mentors = Member.objects.filter(
+        is_present=True, is_late=False, job=job, is_employee=True, group=None
+    )
     mentors_num = mentors.count()
 
     team_dict = {
@@ -74,6 +78,9 @@ def create_team(team_dict):
     people_per_team = team_dict["people_per_team"]
     print("チーム数", team_num)
     print("１チームの人数", people_per_team)
+    # 不正な値の場合は弾く
+    if team_num == 0 or people_per_team == 0:
+        return None
     # チーム数だけメンターを取得
     leaders = mentors[:team_num]
     print("リーダーは", leaders)
@@ -86,9 +93,13 @@ def create_team(team_dict):
             normal_mentor.save()
     # チーム作成とリーダー自身に登録
     for leader in leaders:
-        team = Team.objects.create(leader=leader, score=0)
-        leader.group = team
-        leader.save()
+        try:
+            team = Team.objects.create(leader=leader, score=0)
+            leader.group = team
+            leader.save()
+        except IntegrityError:
+            # 作るの二回目の場合はpass
+            continue
     # チームが入ってないものだけ取り出す。
     teams = Team.objects.filter(leader__job=team_dict["job"])
     normal_players = all_players.filter(group=None)

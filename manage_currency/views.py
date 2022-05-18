@@ -11,6 +11,7 @@ from .forms import SignUpForm
 
 # Create your views here.
 
+FormView
 
 class SignUpView(CreateView):
     model = Member

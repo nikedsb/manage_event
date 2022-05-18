@@ -13,6 +13,7 @@ from .forms import SignUpForm
 
 FormView
 
+
 class SignUpView(CreateView):
     model = Member
     form_class = SignUpForm
@@ -23,6 +24,7 @@ class SignUpView(CreateView):
         """If the form is valid, save the associated model."""
         self.object = form.save()
         Star.objects.create(user=self.object, star=3)
+        Wallet.objects.create(user=self.object, cash=0)
 
         return HttpResponseRedirect(self.get_success_url())
 

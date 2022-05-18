@@ -1,5 +1,3 @@
-from pyexpat import model
-from click import option
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -9,7 +7,8 @@ from django.forms import CharField
 class Team(models.Model):
     leader = models.OneToOneField("Member", on_delete=models.SET_NULL, null=True)
     score = models.IntegerField(validators=[MinValueValidator(0)])
-    
+    rank = models.IntegerField(validators=[MinValueValidator(1)], null=True)
+
     def __str__(self):
         return self.leader.username + "チーム"
 

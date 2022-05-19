@@ -1,13 +1,14 @@
+from turtle import mode
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.forms import CharField
+from soupsieve import select
 
 # Create your models here.
 class Team(models.Model):
     leader = models.OneToOneField("Member", on_delete=models.SET_NULL, null=True)
     score = models.IntegerField(validators=[MinValueValidator(0)])
-    rank = models.IntegerField(validators=[MinValueValidator(1)], null=True)
 
     def __str__(self):
         return self.leader.username + "チーム"
@@ -102,3 +103,4 @@ class QuizOption(models.Model):
 class FinishedQuiz(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
     quizes = models.ManyToManyField(Quiz, related_name="quizes")
+    selected_choice = models.ForeignKey(QuizOption, on_delete=models.CASCADE)

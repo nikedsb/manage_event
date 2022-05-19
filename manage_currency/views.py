@@ -33,4 +33,3 @@ class QuizView(FormView):
     # 選択肢の生成と代入
     def get_form_kwargs(self, *args, **kwargs):
         kwarg = super().get_form_kwargs(self, *args, **kwargs)
-        quiz=

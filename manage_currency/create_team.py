@@ -99,11 +99,17 @@ def create_team(team_dict):
             normal_mentor.save()
     # チーム作成とリーダー自身に登録
     for leader in leaders:
-        try:
-            team = Team.objects.create(leader=leader, score=0)
+        team, is_created = Team.objects.get_or_create(
+            leader=leader,
+            defaults={
+                "leader": leader,
+                "score": 0,
+            },
+        )
+        if is_created:
             leader.group = team
             leader.save()
-        except IntegrityError:
+        else:
             # 作るの二回目の場合はpass
             continue
     # チームが入ってないものだけ取り出す。
@@ -218,13 +224,16 @@ def assign_no_team_players(en_no_team_dict, de_no_team_dict):
 # クイズへの途中参加はできたレベルの遅刻のチーム
 def create_late_team():
     late_leader = get_object_or_404(Member, username=late_leader_name)
-    late_team = Team.objects.create(leader=late_leader, score=0)
-    late_leader.group = late_team
-    late_leader.save()
-    # 雇用メンバーも遅刻する可能性がある、その場合は問答無用で遅刻チームへ。
-    late_people = Member.objects.filter(is_present=True, is_late=True)
-    if late_people.exists():
-        for late_person in late_people:
-            late_person.group = late_team
-            print(late_person.username)
-            late_person.save()
+    late_team, is_created = Team.objects.get_or_create(
+        leader=late_leader, defaults={"leader": late_leader, "socre": 0}
+    )
+    if is_created:
+        late_leader.group = late_team
+        late_leader.save()
+        # 雇用メンバーも遅刻する可能性がある、その場合は問答無用で遅刻チームへ。
+        late_people = Member.objects.filter(is_present=True, is_late=True)
+        if late_people.exists():
+            for late_person in late_people:
+                late_person.group = late_team
+                print(late_person.username)
+                late_person.save()

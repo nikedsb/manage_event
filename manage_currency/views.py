@@ -5,7 +5,7 @@ from django.views.generic import TemplateView, CreateView, FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Member, Team, Wallet, Star, Product, Purchase, Transaction
+from .models import Member, Quiz, Team, Wallet, Star, Product, Purchase, Transaction
 from .forms import SignUpForm
 
 
@@ -29,12 +29,8 @@ class SignUpView(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-# def create_team(request):
-#     if request.method == "POST":
-#         # チーム分けアルゴリズムを書く
-#         print(request.POST)
-#         return
-#     else:
-#         if request.user.is_superuser:
-#             return reverse_lazy("admin:manage_currency_Team_changelist")
-#         # return HttpResponseBadRequest()
+class QuizView(FormView):
+    # 選択肢の生成と代入
+    def get_form_kwargs(self, *args, **kwargs):
+        kwarg = super().get_form_kwargs(self, *args, **kwargs)
+        quiz=

@@ -85,7 +85,7 @@ class Purchase(models.Model):
 class Quiz(models.Model):
     content = models.CharField(max_length=500)
     answer = models.OneToOneField("Answer", on_delete=models.CASCADE, related_name="answer_of_quiz")
-    primary = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+    primary = models.IntegerField(validators=[MinValueValidator(1)])
     is_active = models.BooleanField()
 
 

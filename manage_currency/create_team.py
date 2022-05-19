@@ -7,15 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     Member,
     Team,
-    Wallet,
-    Star,
-    Product,
-    Purchase,
-    Transaction,
-    Answer,
-    Quiz,
-    QuizOption,
-    FinishedQuiz,
 )
 from .variables import late_leader_name
 

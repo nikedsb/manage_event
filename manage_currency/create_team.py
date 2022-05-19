@@ -129,18 +129,90 @@ def create_team(team_dict):
     }
 
 
-def assign_no_team_players(no_team_dict, job):
-    no_team_players = no_team_dict["no_team_players"]
-    people_per_team = no_team_dict["people_per_team"]
-    teams = Team.objects.filter(leader__job=job).exclude(leader__username=late_leader_name)
-    for team in teams:
-        try:
-            no_team_player = no_team_players[0:1].get()
-            no_team_player.group = team
-            no_team_player.save()
-            no_team_players = no_team_players.filter(group=None)
-        except ObjectDoesNotExist:
-            break
+def assign_no_team_players(en_no_team_dict, de_no_team_dict):
+    if en_no_team_dict == None or de_no_team_dict == None:
+        # 二回目以降の処理はnullを返す
+        return
+
+    no_team_engineers = en_no_team_dict["no_team_players"]
+    no_team_designers = de_no_team_dict["no_team_players"]
+    en_teams = Team.objects.filter(leader__job="Engineer").exclude(
+        leader__username=late_leader_name
+    )
+    de_teams = Team.objects.filter(leader__job="Designer")
+    if en_no_team_dict["people_per_team"] >= 3 and de_no_team_dict["people_per_team"] >= 3:
+        for en_team in en_teams:
+            try:
+                no_team_engineer = no_team_engineers.first()
+                no_team_engineer.group = en_team
+                no_team_engineer.save()
+                no_team_engineers = no_team_engineers.filter(group=None)
+            except:
+                break
+        for de_team in de_teams:
+            try:
+                no_team_designer = no_team_designers.first()
+                no_team_designer.group = de_team
+                no_team_designer.save()
+                no_team_designers = no_team_designers.filter(group=None)
+            except:
+                break
+
+    elif 1 <= en_no_team_dict["people_per_team"] <= 2 and de_no_team_dict["people_per_team"] >= 3:
+        # engineerチームは一つしかない
+        # engineerの無所属は0人
+        de_stray_people = de_no_team_dict["no_team_players"]
+        if de_stray_people.exists():
+            engineer_team = Team.objects.filter(leader__job="Engineer").first()
+            team_members_num = Member.objects.filter(group=engineer_team).count()
+            for de_stray_person in de_stray_people:
+                print("エンジニアチームの人数は", team_members_num)
+                de_stray_person.group = engineer_team
+                de_stray_person.save()
+                team_members_num += 1
+                if team_members_num >= 4:
+                    break
+
+            de_not_team_members = Member.objects.filter(group=None, job="Designer").exclude(
+                is_superuser=True
+            )
+            teams = Team.objects.filter(leader__job="Desginer")
+            for team in teams:
+                try:
+                    de_not_team_member = de_not_team_members.first()
+                    de_not_team_member.group = team
+                    de_not_team_member.save()
+                    de_not_team_members = de_not_team_members.filter(group=None)
+                except:
+                    break
+
+    elif en_no_team_dict["people_per_team"] >= 3 and 1 <= de_no_team_dict["people_per_team"] <= 2:
+        # desginerチームは一つしかない。
+        # designerの無所属は0人
+        en_stray_people = en_no_team_dict["no_team_players"]
+        if en_stray_people.exists():
+            designer_team = Team.objects.filter(leader__job="Designer").first()
+            team_members_num = Member.objects.filter(group=designer_team).count()
+            for en_stray_person in en_stray_people:
+                print("デザイナーチームの人数は", team_members_num)
+                en_stray_person.group = designer_team
+                en_stray_person.save()
+                team_members_num += 1
+                if team_members_num >= 4:
+                    break
+
+            en_not_team_members = Member.objects.filter(group=None, job="Engineer").exclude(
+                is_superuser=True
+            )
+            teams = Team.objects.filter(leader__job="Engineer")
+            for team in teams:
+                try:
+                    en_not_team_member = en_not_team_members.first()
+                    en_not_team_member.group = team
+                    en_not_team_member.save()
+                    en_not_team_members = en_not_team_members.filter(group=None)
+                except:
+                    break
 
 
 # クイズへの途中参加はできたレベルの遅刻のチーム

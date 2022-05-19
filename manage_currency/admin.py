@@ -92,8 +92,12 @@ class TeamAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.getlist("create_team"):
-            assign_no_team_players(create_team(culc_team_num("Engineer")), "Engineer")
-            assign_no_team_players(create_team(culc_team_num("Designer")), "Designer")
+            engineer_dict = create_team(culc_team_num("Engineer"))
+            designer_dict = create_team(culc_team_num("Designer"))
+            assign_no_team_players(
+                engineer_dict,
+                designer_dict,
+            )
             create_late_team()
         return super().changelist_view(request)
 

@@ -85,13 +85,17 @@ class Purchase(models.Model):
 
 class Quiz(models.Model):
     content = models.CharField(max_length=500)
-    answer = models.OneToOneField("Answer", on_delete=models.CASCADE, related_name="answer_of_quiz")
+    answer = models.OneToOneField(
+        "Answer", on_delete=models.CASCADE, related_name="answer_of_quiz", null=True, blank=True
+    )
     primary = models.IntegerField(validators=[MinValueValidator(1)])
     is_active = models.BooleanField()
 
 
 class Answer(models.Model):
-    quiz = models.OneToOneField(Quiz, on_delete=models.CASCADE, related_name="quiz_of_answer")
+    quiz = models.OneToOneField(
+        Quiz, on_delete=models.CASCADE, related_name="quiz_of_answer", null=True, blank=True
+    )
     correct_option = models.OneToOneField("QuizOption", on_delete=models.CASCADE)
 
 

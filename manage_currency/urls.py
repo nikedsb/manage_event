@@ -28,7 +28,7 @@ urlpatterns = [
     ),
     path(
         "quiz/<int:quiz_num>/",
-        TemplateView.as_view(template_name="manage_currency/top.html"),
+        QuizView.as_view(),
         name="quiz",
     ),
     path("trade/", TemplateView.as_view(template_name="manage_currency/top.html"), name="trade"),

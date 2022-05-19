@@ -15,6 +15,7 @@ from .models import (
     FinishedQuiz,
 )
 from .create_team import culc_team_num, create_team, create_late_team, assign_no_team_players
+from .distrib_cash import calc_and_distrib_cash
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
@@ -57,8 +58,7 @@ class WalletAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         if request.method == "POST" and request.POST.getlist("distrib_cash"):
-            print("配布開始")
-
+            calc_and_distrib_cash()
         return super().changelist_view(request)
 
 

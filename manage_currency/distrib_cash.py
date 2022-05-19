@@ -1,3 +1,4 @@
+import math
 from django.db.models import Q
 from .models import (
     Member,
@@ -33,27 +34,28 @@ def calc_and_distrib_cash():
     for i, score in enumerate(score_set):
         same_rank_players = Member.objects.filter(group__score=score)
         # 重み付けの比率部分→適宜調整
-        rank_sum += (i + 1) * same_rank_players.count() / 2
-
-        # 最終ループの時
-        if i + 1 == len(score_set):
-            print(rank_sum)
-            # 単位rank当たりのDeC計算
-            unit = all_cash / rank_sum
-            # bulk_update用
-            wallet_list = []
-            for same_rank_player in same_rank_players:
-                cash = (i + 1) * unit
-                wallet, _ = Wallet.objects.get_or_create(
-                    user=same_rank_player,
-                    defaults={
-                        "user": same_rank_player,
-                        "cash": 0,
-                    },
-                )
-                wallet.cash = cash
-                wallet_list.append(wallet)
-            Wallet.objects.bulk_update(wallet_list)
+        rank_sum += (i + 1) * same_rank_players.count()
+    print("rank_sum", rank_sum)
+    print(all_cash)
+    unit = all_cash / rank_sum
+    print("unit", unit)
+    wallet_list = []
+    for j, score in enumerate(score_set):
+        same_rank_players = Member.objects.filter(group__score=score)
+        for same_rank_player in same_rank_players:
+            # 配布DeC量
+            cash = (j + 1) * unit
+            wallet, _ = Wallet.objects.get_or_create(
+                user=same_rank_player,
+                defaults={
+                    "user": same_rank_player,
+                    "cash": 0,
+                },
+            )
+            wallet.cash = math.floor(cash)
+            wallet_list.append(wallet)
+    print(wallet_list)
+    Wallet.objects.bulk_update(wallet_list, fields=["cash"])
 
 
 # いらないかも

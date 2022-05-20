@@ -115,7 +115,7 @@ class QuizAdmin(admin.ModelAdmin):
 
 
 class FinishedQuizAdmin(admin.ModelAdmin):
-    list_display = ["team"]
+    list_display = ["team", "quiz", "selected_choice"]
 
 
 admin.site.register(Member, CustomUserAdmin)

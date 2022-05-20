@@ -91,6 +91,14 @@ class Quiz(models.Model):
     primary = models.IntegerField(validators=[MinValueValidator(1)])
     is_active = models.BooleanField()
 
+    def __str__(self):
+        if self.is_active:
+            display = f"第{self.primary}問目" + self.content
+        else:
+            display = "不使用" + self.content
+
+        return display
+
 
 class Answer(models.Model):
     quiz = models.OneToOneField(
@@ -103,8 +111,21 @@ class QuizOption(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="quiz_of_option")
     option = models.CharField(max_length=140)
 
+    def __str__(self):
+        if self.quiz.is_active:
+            display = f"第{self.quiz.primary}問目"
+        else:
+            display = "不使用"
+
+        return f"{display},{self.option}"
+
 
 class FinishedQuiz(models.Model):
-    team = models.OneToOneField(Team, on_delete=models.CASCADE)
-    quizes = models.ManyToManyField(Quiz, related_name="quizes")
-    selected_choice = models.ForeignKey(QuizOption, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, related_name="finished_quize", on_delete=models.CASCADE)
+    selected_choice = models.ForeignKey(
+        QuizOption, on_delete=models.CASCADE, related_name="selected_choice", null=True
+    )
+
+    def __str__(self):
+        return f"{self.team.leader.username},{self.quiz.content},{self.selected_choice.option}"

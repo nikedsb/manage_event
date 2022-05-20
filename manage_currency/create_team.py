@@ -216,7 +216,7 @@ def assign_no_team_players(en_no_team_dict, de_no_team_dict):
 def create_late_team():
     late_leader = get_object_or_404(Member, username=late_leader_name)
     late_team, is_created = Team.objects.get_or_create(
-        leader=late_leader, defaults={"leader": late_leader, "socre": 0}
+        leader=late_leader, defaults={"leader": late_leader, "score": 0}
     )
     if is_created:
         late_leader.group = late_team

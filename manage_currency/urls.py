@@ -4,7 +4,7 @@ from django.urls import path
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.views.generic import TemplateView, CreateView
-from .views import SignUpView, QuizView
+from .views import SignUpView, QuizView, TradeView
 
 urlpatterns = [
     path("top/", TemplateView.as_view(template_name="manage_currency/top.html"), name="top"),
@@ -31,7 +31,7 @@ urlpatterns = [
         QuizView.as_view(),
         name="quiz",
     ),
-    path("trade/", TemplateView.as_view(template_name="manage_currency/top.html"), name="trade"),
+    path("trade/", TradeView.as_view(), name="trade"),
     #     path(
     #         "create_team/",
     #         create_team,

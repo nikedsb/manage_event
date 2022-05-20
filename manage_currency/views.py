@@ -1,6 +1,7 @@
 from tokenize import group
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, request
+from django.test import client
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView
 from django.contrib.auth.views import LoginView
@@ -123,3 +124,23 @@ class QuizView(LoginRequiredMixin, FormView):
 class TradeView(FormView):
     template_name = "manage_currency/trade.html"
     form_class = TradeForm
+    success_url = reverse_lazy("top")
+
+    def get_form(self, *args, **kwargs):
+        # 選択肢をオーバーライドしてる
+        form = super().get_form(**kwargs)
+        return form
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwgs = super().get_form_kwargs(*args, **kwargs)
+        user = self.request.user
+        star_limit = Star.objects.get(user=user).star
+        cash_limit = Wallet.objects.get(user=user).cash
+        kwgs["star_limit"] = star_limit
+        kwgs["cash_limit"] = cash_limit
+        kwgs["oneself"] = user
+        return kwgs
+
+    def form_valid(self, form, *args, **kwargs):
+        user = self.request.user
+        return super().form_valid(form, *args, **kwargs)

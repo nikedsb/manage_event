@@ -8,4 +8,11 @@
   {% bootstrap_form form %}
   {% bootstrap_button "送信" %}
 </form>
+<form action="" method="post">
+  {% csrf_token %}
+  <input type="submit" class="btn btn-primary" value="取引をキャンセル" name="cancel_trade">
+</form>
+{% if cancel_message %}
+<p>{{cancel_message}}</p>
+{% endif %}
 {% endblock  %}

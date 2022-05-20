@@ -67,7 +67,7 @@ class TradeForm(forms.Form):
         except ObjectDoesNotExist:
             raise ValidationError("指定したIDのユーザーは存在しません。")
 
-    def __init__(self, oneself, star_limit, cash_limit, *args, **kwargs):
+    def __init__(self, oneself=None, star_limit=None, cash_limit=None, *args, **kwargs):
 
         star_validator = self.base_fields["star"].validators
         cash_validators = self.base_fields["cash"].validators

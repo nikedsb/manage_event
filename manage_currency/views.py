@@ -144,3 +144,19 @@ class TradeView(FormView):
     def form_valid(self, form, *args, **kwargs):
         user = self.request.user
         return super().form_valid(form, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # request.POSTからとってきて,キャンセルボタンが押された時に現在のTransactionをis_doneにする
+        # getlistとか使ってなんとかする
+        if "取引をキャンセル" in request.POST.getlist("cancel_trade"):
+            ""
+            context = super().get_context_data(*args, **kwargs)
+            context["cancel_message"] = "キャンセルが完了しました。"
+            context["form"] = TradeForm()
+            return render(self.request, "manage_currency/trade.html", context)
+
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)

@@ -1,12 +1,16 @@
+from itertools import product
+from re import A
 from tokenize import group
+from django.dispatch import receiver
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, request
 from django.test import client
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, FormView
+from django.views.generic import TemplateView, CreateView, FormView, ListView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from .models import (
     FinishedQuiz,
     Member,
@@ -25,8 +29,6 @@ from django.http import HttpResponseForbidden
 
 
 # Create your views here.
-
-FormView
 
 
 class SignUpView(CreateView):
@@ -124,7 +126,6 @@ class QuizView(LoginRequiredMixin, FormView):
 class TradeView(FormView):
     template_name = "manage_currency/trade.html"
     form_class = TradeForm
-    success_url = reverse_lazy("top")
 
     def get_form(self, *args, **kwargs):
         # 選択肢をオーバーライドしてる
@@ -134,24 +135,105 @@ class TradeView(FormView):
     def get_form_kwargs(self, *args, **kwargs):
         kwgs = super().get_form_kwargs(*args, **kwargs)
         user = self.request.user
-        star_limit = Star.objects.get(user=user).star
-        cash_limit = Wallet.objects.get(user=user).cash
-        kwgs["star_limit"] = star_limit
-        kwgs["cash_limit"] = cash_limit
         kwgs["oneself"] = user
+        kwgs["is_sender"] = self.request.POST.get("is_sender")
         return kwgs
 
     def form_valid(self, form, *args, **kwargs):
+        # ほんちゃんの処理、
         user = self.request.user
+        trade_with = Member.objects.get(id=form.cleaned_data["trade_with"].id)
+        star = form.cleaned_data["star"]
+        cash = form.cleaned_data["cash"]
+        if form.cleaned_data["is_sender"]:
+            sender = self.request.user
+            receiver = trade_with
+        else:
+            sender = trade_with
+            receiver = self.request.user
+        print("sender", sender)
+        print("receiver", receiver)
+
+        # transactionを探す
+        try:
+            # 誰かが自分に対して申請した取引を取得
+            transaction = Transaction.objects.get(
+                trade_with=user,
+                send_from=sender,
+                send_to=receiver,
+                is_done=False,
+                is_canceled=False,
+            )
+            print(transaction)
+            # 取引量の合意があるか
+            if transaction.cash == cash and transaction.star == star:
+                sender_wallet = Wallet.objects.get(user=sender)
+                sender_star = Star.objects.get(user=sender)
+                receiver_wallet = Wallet.objects.get(user=receiver)
+                receiver_star = Star.objects.get(user=receiver)
+                print(sender_star)
+                print(sender_wallet)
+                print(receiver_star)
+                print(receiver_wallet)
+                # Starの取引
+                if star > 0:
+                    sender_star.star -= star
+                    sender_star.save()
+                    receiver_star.star += star
+                    receiver_star.save()
+                # Cashの取引
+                if cash > 0:
+                    sender_wallet.cash -= cash
+                    sender_wallet.save()
+                    receiver_wallet.cash += cash
+                    receiver_wallet.save()
+
+                transaction.is_done = True
+                transaction.save()
+                # get_success_urlに引き渡す。
+                self.is_trade_done = True
+            else:
+                print("エラー追加")
+                form.add_error(None, "スターおよびコインの取引量が合意された量ではありません。")
+                return self.render_to_response(self.get_context_data(form=form))
+        except:
+            # ミスの送信の可能性
+            error_transaction = Transaction.objects.filter(
+                trade_with=user,
+                send_from=receiver,
+                send_to=sender,
+                is_done=False,
+                is_canceled=False,
+            )
+            if error_transaction.exists():
+                form.add_error(None, "送信者と受信者が合致しません。")
+                return self.render_to_response(self.get_context_data(form=form))
+
+            new_transanction = Transaction(
+                requested_by=user,
+                trade_with=trade_with,
+                send_from=sender,
+                send_to=receiver,
+                star=star,
+                cash=cash,
+                is_canceled=False,
+                is_done=False,
+            )
+            new_transanction.save()
+            # get_success_urlに引き渡す
+            self.is_trade_done = False
         return super().form_valid(form, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         # request.POSTからとってきて,キャンセルボタンが押された時に現在のTransactionをis_doneにする
-        # getlistとか使ってなんとかする
         if "取引をキャンセル" in request.POST.getlist("cancel_trade"):
-            ""
+            # 自分が申請してるものをキャンセル。
+            user = self.request.user
+            transaction = Transaction.objects.get(requested_by=user, is_done=False)
+            transaction.is_canceled = True
+            transaction.save()
             context = super().get_context_data(*args, **kwargs)
-            context["cancel_message"] = "キャンセルが完了しました。"
+            context["cancel_message"] = "申請した取引のキャンセルが完了しました。"
             context["form"] = TradeForm()
             return render(self.request, "manage_currency/trade.html", context)
 
@@ -160,3 +242,20 @@ class TradeView(FormView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+    def get_success_url(self):
+        if self.is_trade_done:
+            success_url = reverse_lazy("trade_finished")
+        else:
+            success_url = reverse_lazy("trade_started")
+        return success_url
+
+
+class ProductListView(ListView):
+    template_name = "manage_currency.html"
+    model = Product
+
+
+class PurchaseView(FormView):
+    template_name = "manage_currency/trade.html"
+    form_class = TradeForm

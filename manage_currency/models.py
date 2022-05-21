@@ -42,6 +42,7 @@ class Transaction(models.Model):
     star = models.IntegerField(validators=[MinValueValidator(0)])
     cash = models.IntegerField(validators=[MinValueValidator(0)])
     # 完了のフラグ
+    is_canceled = models.BooleanField()
     is_done = models.BooleanField()
 
 

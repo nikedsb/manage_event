@@ -1,0 +1,8 @@
+{% extends 'manage_currency/base.html' %}
+{% load pipeline %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<p　class="col-md-2 col-md-offset-5">取引申請が完了しました。取引相手からの承認を待っています。</p>
+<a href="{% url 'trade' %}">取引へ</a>
+{% endblock  %}

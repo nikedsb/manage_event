@@ -6,7 +6,7 @@
 <form action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
-  {% bootstrap_button "送信" %}
+  {% bootstrap_button "取引" %}
 </form>
 <form action="" method="post">
   {% csrf_token %}
@@ -15,4 +15,6 @@
 {% if cancel_message %}
 <p>{{cancel_message}}</p>
 {% endif %}
+
+{{request.user.username}}
 {% endblock  %}

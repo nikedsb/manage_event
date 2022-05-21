@@ -4,7 +4,7 @@ from django.urls import path
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.views.generic import TemplateView, CreateView
-from .views import SignUpView, QuizView, TradeView
+from .views import ProductListView, SignUpView, QuizView, TradeView
 
 urlpatterns = [
     path("top/", TemplateView.as_view(template_name="manage_currency/top.html"), name="top"),
@@ -18,12 +18,12 @@ urlpatterns = [
     ),
     path(
         "product_list",
-        TemplateView.as_view(template_name="manage_currency/top.html"),
+        ProductListView.as_view(),
         name="product_list",
     ),
     path(
         "product_detail/",
-        TemplateView.as_view(template_name="manage_currency/top.html"),
+        ProductListView.as_view(),
         name="product_detail",
     ),
     path(
@@ -32,9 +32,14 @@ urlpatterns = [
         name="quiz",
     ),
     path("trade/", TradeView.as_view(), name="trade"),
-    #     path(
-    #         "create_team/",
-    #         create_team,
-    #         name="create_team",
-    #     ),
+    path(
+        "trade_finished/",
+        TemplateView.as_view(template_name="manage_currency/trade_finished.html"),
+        name="trade_finished",
+    ),
+    path(
+        "trade_started/",
+        TemplateView.as_view(template_name="manage_currency/trade_started.html"),
+        name="trade_started",
+    ),
 ]

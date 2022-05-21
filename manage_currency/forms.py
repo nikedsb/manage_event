@@ -1,11 +1,13 @@
+from dataclasses import field
 from logging import raiseExceptions
 from django import forms
+from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Member, QuizOption, Transaction
+from .models import Member, Purchase, QuizOption, Transaction, Star, Wallet
 
 
 class SignUpForm(UserCreationForm):
@@ -41,8 +43,8 @@ class QuizForm(forms.Form):
 class TradeForm(forms.Form):
     # trade_with = forms.ModelChoiceField(queryset=Member.objects.all())
     trade_with = forms.IntegerField(validators=[MinValueValidator(1)])
-    star = forms.IntegerField(validators=[MinValueValidator(0)])
-    cash = forms.IntegerField(validators=[MinValueValidator(0)])
+    star = forms.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(200)])
+    cash = forms.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     is_sender = forms.BooleanField(required=False)
 
     def clean(self):
@@ -53,8 +55,26 @@ class TradeForm(forms.Form):
         key_list = list(self.cleaned_data.keys())
         if "star" in key_list and "cash" in key_list:
             if self.cleaned_data["star"] == 0 and self.cleaned_data["cash"] == 0:
-                raise ValidationError("DeMiStarかDeMiCashを送信(受信)してください。")
+                self.add_error(None, "DeMiStarかDeMiCashを送信(受信)してください。")
+        try:
+            trade_with = self.cleaned_data["trade_with"]
+            if self.cleaned_data["is_sender"]:
+                sender = self.oneself
+                receiver = Member.objects.get(id=trade_with.id)
+            else:
+                sender = Member.objects.get(id=trade_with.id)
+                receiver = self.oneself
 
+            # 自分からは複数の取引を申請できない add errorはcleand_dataから削除する
+            transaction = Transaction.objects.filter(
+                is_canceled=False, is_done=False, requested_by=self.oneself
+            )
+            print("自分自身", self.oneself)
+            if transaction.exists():
+                self.add_error("trade_with", "すでに申請している取引があります。先に取引をキャンセルしてください。")
+            self.cleaned_data.update({"sender": sender, "receiver": receiver})
+        except:
+            return self.cleaned_data
         return self.cleaned_data
 
     def clean_trade_with(self, *args, **kwargs):
@@ -67,13 +87,34 @@ class TradeForm(forms.Form):
         except ObjectDoesNotExist:
             raise ValidationError("指定したIDのユーザーは存在しません。")
 
-    def __init__(self, oneself=None, star_limit=None, cash_limit=None, *args, **kwargs):
+    def clean_star(self, *args, **kwargs):
+        key_list = list(self.cleaned_data.keys())
+        is_sender = self.is_sender
+        star_limit = Star.objects.get(user=self.oneself).star
+        if "star" in key_list:
+            star = self.cleaned_data["star"]
+            if is_sender and star > star_limit:
+                raise ValidationError("保有数を超える量は送信できません。")
+        return star
 
-        star_validator = self.base_fields["star"].validators
-        cash_validators = self.base_fields["cash"].validators
-        if len(star_validator) == 1:
-            star_validator.append(MaxValueValidator(star_limit))
-        if len(cash_validators) == 1:
-            cash_validators.append(MaxValueValidator(cash_limit))
+    def clean_cash(self, *args, **kwargs):
+        key_list = list(self.cleaned_data.keys())
+        is_sender = self.is_sender
+        cash_limit = Wallet.objects.get(user=self.oneself).cash
+        if "cash" in key_list:
+            cash = self.cleaned_data["cash"]
+            if is_sender and cash > cash_limit:
+                raise ValidationError("保有数を超える量は送信できません。")
+
+        return cash
+
+    def __init__(self, oneself=None, is_sender=None, *args, **kwargs):
         self.oneself = oneself
+        self.is_sender = is_sender
         return super().__init__(*args, **kwargs)
+
+
+class PurchaseForm(forms.ModelForm):
+    class Meta:
+        model = Purchase
+        fields = "__all__"

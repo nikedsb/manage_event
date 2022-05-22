@@ -1,17 +1,15 @@
-from itertools import product
-from re import A
-from tokenize import group
-from django.dispatch import receiver
+import math
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, request
-from django.test import client
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.db import models
 from .models import (
+    AllCash,
     FinishedQuiz,
     Member,
     Quiz,
@@ -23,7 +21,7 @@ from .models import (
     Purchase,
     Transaction,
 )
-from .forms import SignUpForm, QuizForm, TradeForm
+from .forms import PurchaseForm, SignUpForm, QuizForm, TradeForm
 from .variables import quiz_volume
 from django.http import HttpResponseForbidden
 
@@ -123,14 +121,9 @@ class QuizView(LoginRequiredMixin, FormView):
         return super().form_invalid(form, *args, **kwargs)
 
 
-class TradeView(FormView):
+class TradeView(LoginRequiredMixin, FormView):
     template_name = "manage_currency/trade.html"
     form_class = TradeForm
-
-    def get_form(self, *args, **kwargs):
-        # 選択肢をオーバーライドしてる
-        form = super().get_form(**kwargs)
-        return form
 
     def get_form_kwargs(self, *args, **kwargs):
         kwgs = super().get_form_kwargs(*args, **kwargs)
@@ -251,11 +244,57 @@ class TradeView(FormView):
         return success_url
 
 
-class ProductListView(ListView):
-    template_name = "manage_currency.html"
+class ProductListView(LoginRequiredMixin, ListView):
+    template_name = "manage_currency/product-list.html"
     model = Product
+    # getをオーバーライドしてStarの価格を更新
 
 
-class PurchaseView(FormView):
-    template_name = "manage_currency/trade.html"
-    form_class = TradeForm
+class PurchaseView(LoginRequiredMixin, FormView):
+    template_name = "manage_currency/purchase.html"
+    form_class = PurchaseForm
+    success_url = reverse_lazy("purchase_done")
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwgs = super().get_form_kwargs(*args, **kwargs)
+        user = self.request.user
+        kwgs["oneself"] = user
+        kwgs["quantity"] = (
+            int(self.request.POST.get("quantity")) if self.request.method == "POST" else None
+        )
+        product = Product.objects.get(id=self.kwargs["pk"])
+        self.product = product
+        kwgs["product"] = product
+        return kwgs
+
+    def form_valid(self, form, *args, **kwargs):
+        # 購入処理
+        quantity = form.cleaned_data["quantity"]
+        # 引き落とし
+        wallet = Wallet.objects.get(user=self.request.user)
+        wallet.cash -= form.cleaned_data["price_sum"]
+        wallet.save()
+        # 在庫数調整
+        self.product.stock -= quantity
+        self.product.save()
+        # 購入履歴更新
+        Purchase.objects.create(
+            user=self.request.user,
+            product=self.product,
+            quantity=quantity,
+            is_delivered=False,
+        )
+        # DeMiStarの価格リセット
+        demi_star = Product.objects.get(name="DeMiStar")
+        initial_all_cash = AllCash.objects.all().first().all_cash
+        current_all_cash = Wallet.objects.aggregate(models.Sum("cash"))["cash__sum"]
+        s = initial_all_cash / current_all_cash
+        demi_star.price = math.ceil(1100 * s)
+        demi_star.save()
+        return super().form_valid(form, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        product = Product.objects.get(id=self.kwargs["pk"])
+        context.update({"product": product})
+        return context

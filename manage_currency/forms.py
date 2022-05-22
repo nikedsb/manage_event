@@ -1,5 +1,4 @@
-from dataclasses import field
-from logging import raiseExceptions
+from itertools import product
 from django import forms
 from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm
@@ -114,7 +113,21 @@ class TradeForm(forms.Form):
         return super().__init__(*args, **kwargs)
 
 
-class PurchaseForm(forms.ModelForm):
-    class Meta:
-        model = Purchase
-        fields = "__all__"
+class PurchaseForm(forms.Form):
+    quantity = forms.IntegerField(min_value=1, max_value=30)
+
+    def __init__(self, oneself=None, quantity=None, product=None, *args, **kwargs):
+        self.oneself = oneself
+        self.quantity = quantity
+        self.product = product
+        return super().__init__(*args, **kwargs)
+
+    def clean_quantity(self):
+        price_sum = self.product.price * self.quantity
+        wallet = Wallet.objects.get(user=self.oneself)
+        if wallet.cash < price_sum:
+            self.add_error("quantity", "保有額より高額な購入はできません")
+        if self.quantity > self.product.stock:
+            self.add_error("quantity", "購入量分の在庫がありません")
+        self.cleaned_data["price_sum"] = price_sum
+        return self.quantity

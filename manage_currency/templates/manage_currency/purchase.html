@@ -1,0 +1,16 @@
+{% extends 'manage_currency/base.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="product_detail">
+  <img src="{{product.image.url}}" alt="">
+  <p>{{product.name}}</p>
+  <p>{{product.price}}</p>
+  <p>{{product.stock}}</p>
+</div>
+<form action="" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  {% bootstrap_button "購入" %}
+</form>
+{{request.user.username}}
+{% endblock  %}

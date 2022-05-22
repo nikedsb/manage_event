@@ -88,12 +88,12 @@
   </div>
 </div>
 
-{% if title == "Select team to change" %}
+{% if title == "変更する team を選択" %}
 <form action="" method="post">
   {% csrf_token %}
   <input type="submit" value="チーム作成" name="create_team">
 </form>
-{% elif title == "Select wallet to change" %}
+{% elif title == "変更する wallet を選択" %}
 <form action="" method="post">
   {% csrf_token %}
   <input type="submit" value="DeMiCash配布" name="distrib_cash">

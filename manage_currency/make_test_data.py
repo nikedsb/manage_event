@@ -25,6 +25,15 @@ def create_wallet_and_star():
     Wallet.objects.bulk_create(wallet_list)
 
 
+def wallet_reset():
+    wallets = Wallet.objects.all()
+    wallets_list = []
+    for wallet in wallets:
+        wallet.cash = 0
+        wallets_list.append(wallet)
+    Wallet.objects.bulk_update(wallets_list, fields=["cash"])
+
+
 def main():
     create_dummy_members("Engineer", 30)
 

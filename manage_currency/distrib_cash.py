@@ -1,6 +1,8 @@
 import math
 from django.db.models import Q
+from django.db import models
 from .models import (
+    AllCash,
     Member,
     Team,
     Wallet,
@@ -56,6 +58,11 @@ def calc_and_distrib_cash():
             wallet_list.append(wallet)
     print(wallet_list)
     Wallet.objects.bulk_update(wallet_list, fields=["cash"])
+    # 合計キャッシュをデータベースに反映
+    all_cash_instances = AllCash.objects.all()
+    for instance in all_cash_instances:
+        instance.all_cash = Wallet.objects.aggregate(models.Sum("cash"))["cash__sum"]
+        instance.save()
 
 
 # いらないかも

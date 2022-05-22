@@ -13,6 +13,7 @@ from .models import (
     Quiz,
     QuizOption,
     FinishedQuiz,
+    AllCash,
 )
 from .create_team import culc_team_num, create_team, create_late_team, assign_no_team_players
 from .distrib_cash import calc_and_distrib_cash
@@ -129,3 +130,4 @@ admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Quiz, QuizAdmin)
 admin.site.register(QuizOption, QuizOptionAdmin)
 admin.site.register(FinishedQuiz, FinishedQuizAdmin)
+admin.site.register(AllCash, admin.ModelAdmin)

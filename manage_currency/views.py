@@ -222,12 +222,16 @@ class TradeView(LoginRequiredMixin, FormView):
         if "取引をキャンセル" in request.POST.getlist("cancel_trade"):
             # 自分が申請してるものをキャンセル。
             user = self.request.user
-            transaction = Transaction.objects.get(requested_by=user, is_done=False)
-            transaction.is_canceled = True
-            transaction.save()
             context = super().get_context_data(*args, **kwargs)
-            context["cancel_message"] = "申請した取引のキャンセルが完了しました。"
-            context["form"] = TradeForm()
+            try:
+                transaction = Transaction.objects.get(requested_by=user, is_done=False)
+                transaction.is_canceled = True
+                transaction.save()
+                context["cancel_message"] = "申請した取引のキャンセルが完了しました。"
+                context["form"] = TradeForm()
+            except:
+                context["cancel_message"] = "申請している取引はありません。"
+                context["form"] = TradeForm()
             return render(self.request, "manage_currency/trade.html", context)
 
         form = self.get_form()

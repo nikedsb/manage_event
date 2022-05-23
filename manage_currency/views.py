@@ -47,6 +47,11 @@ class SignUpView(CreateView):
     success_url = reverse_lazy("top")
     template_name = "manage_currency/signup.html"
 
+    def get(self, request, *args, **kwargs):
+        if self.request.user.id != None:
+            return redirect("log_in")
+        return super().get(request, *args, **kwargs)
+
     def form_valid(self, form):
         self.object = form.save()
         Star.objects.create(user=self.object, star=3)

@@ -5,10 +5,10 @@ from django.urls import path
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.views.generic import TemplateView, CreateView
-from .views import PurchaseView, ProductListView, SignUpView, QuizView, TradeView
+from .views import PurchaseView, ProductListView, SignUpView, QuizView, TradeView, TopView
 
 urlpatterns = [
-    path("top/", TemplateView.as_view(template_name="manage_currency/top.html"), name="top"),
+    path("top/", TopView.as_view(), name="top"),
     path("signup/", SignUpView.as_view(), name="signup"),
     path(
         "login/",

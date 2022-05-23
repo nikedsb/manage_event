@@ -1,0 +1,9 @@
+@import "_variables.scss";
+
+.product {
+  @include product-detail;
+}
+
+form {
+  @include form;
+}

@@ -1,16 +1,21 @@
 {% extends 'manage_currency/base.html' %}
 {% load django_bootstrap5 %}
+{% load pipeline %}
+{% block extra_style %}{% stylesheet "purchase" %}{% endblock  %}
 {% block content %}
-<div class="product_detail">
-  <img src="{{product.image.url}}" alt="">
-  <p>{{product.name}}</p>
-  <p>{{product.price}}</p>
-  <p>{{product.stock}}</p>
+<div class="product">
+  <div class="product__item text-primary">
+    <img src="{{product.image.url}}" alt="">
+    <div class="product__item--info">
+      <p>{{product.name}}</p>
+      <p>価格：{{product.price}}DeC</p>
+      <p>在庫数：{{product.stock}}</p>
+    </div>
+  </div>
 </div>
 <form action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
   {% bootstrap_button "購入" %}
 </form>
-{{request.user.username}}
 {% endblock  %}

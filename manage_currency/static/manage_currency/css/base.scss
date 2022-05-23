@@ -1,6 +1,22 @@
 main {
-  margin-top: 56px;
+  margin-top: 72px;
+  width: 100%;
 }
+
+
+.navbar-brand {
+  margin-left: 16px;
+}
+
+.navbar-toggler {
+  margin-right: 16px;
+}
+
+.nav-link {
+  margin: 0 16px;
+  border-bottom: 1px solid #6c757d;
+}
+
 
 .navbar-dark .navbar-toggler-icon {
   /* 三本線 */

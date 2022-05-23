@@ -1,9 +1,21 @@
 {% extends 'manage_currency/base.html' %}
 {% load pipeline %}
 {% load django_bootstrap5 %}
+{% load star_display %}
 
 {% block extra_style %}{% stylesheet 'top' %}{% endblock %}
 
 {% block content %}
-
+{% comment %}
+ユーザー名、ユーザーid、DeMiStar DeMiCash 表示
+{% endcomment %}
+<div class="user-info">
+  <p class="user-info__name">ユーザーネーム：{{request.user.username}}</p>
+  <p class="user-info__id">ユーザーID：{{request.user.id}}</p>
+  <div class="user-info__star">
+    <p class="user-info__star--label">DeMiStar：</p>
+    <p class="user-info__star--content">{{star | star_display}}({{star}})</p>
+  </div>
+  <p class="user-info__cash">DeMiCash：{{cash}}DeC</p>
+</div>
 {% endblock  %}

@@ -1,0 +1,29 @@
+@mixin product-detail {
+  margin: 0 10px;
+
+  &__item {
+    display: flex;
+    padding: 0 6px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background-color: rgb(248, 249, 250);
+    text-decoration: none;
+
+    img {
+      border-radius: 10px;
+      margin: 8px 0px;
+      width: 120px;
+      height: 120px;
+    }
+
+    &--info {
+      margin: 8px 16px;
+
+    }
+  }
+
+}
+
+@mixin form {
+  margin: 16px;
+}

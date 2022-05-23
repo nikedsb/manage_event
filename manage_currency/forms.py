@@ -114,7 +114,7 @@ class TradeForm(forms.Form):
 
 
 class PurchaseForm(forms.Form):
-    quantity = forms.IntegerField(min_value=1, max_value=30)
+    quantity = forms.IntegerField(min_value=1, max_value=30, label="購入数")
 
     def __init__(self, oneself=None, quantity=None, product=None, *args, **kwargs):
         self.oneself = oneself

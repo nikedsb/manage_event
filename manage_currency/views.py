@@ -1,6 +1,9 @@
+from importlib.abc import SourceLoader
 import math
+from re import template
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, request
+from django.template import context
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView
 from django.contrib.auth.views import LoginView
@@ -27,6 +30,15 @@ from django.http import HttpResponseForbidden
 
 
 # Create your views here.
+class TopView(LoginRequiredMixin, TemplateView):
+    template_name = "manage_currency/top.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        wallet = Wallet.objects.get(user=self.request.user)
+        star = Star.objects.get(user=self.request.user)
+        context.update({"star": star.star, "cash": wallet.cash})
+        return context
 
 
 class SignUpView(CreateView):

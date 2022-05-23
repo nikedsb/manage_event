@@ -167,6 +167,24 @@ PIPELINE = {
             ],
             "output_filename": "manage_currency/css/top.css",
         },
+        "product-list": {
+            "source_filenames": [
+                "manage_currency/css/product-list.scss",
+            ],
+            "output_filename": "manage_currency/css/product-list.css",
+        },
+        "purchase": {
+            "source_filenames": [
+                "manage_currency/css/purchase.scss",
+            ],
+            "output_filename": "manage_currency/css/purchase.css",
+        },
+        "login": {
+            "source_filenames": [
+                "manage_currency/css/login.scss",
+            ],
+            "output_filename": "manage_currency/css/login.css",
+        },
     },
     "JAVASCRIPT": {},
 }

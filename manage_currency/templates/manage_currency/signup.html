@@ -1,7 +1,7 @@
 {% extends 'manage_currency/base.html' %}
 {% load django_bootstrap5 %}
 {% load pipeline %}
-
+{% block extra_style %}{% stylesheet "signup" %}{% endblock  %}
 
 {% block content %}
 <form action="" method="post">

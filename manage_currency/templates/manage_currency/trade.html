@@ -1,20 +1,21 @@
 {% extends 'manage_currency/base.html' %}
 {% load django_bootstrap5 %}
 {% load pipeline %}
-
+{% block extra_style %}
+{% stylesheet "trade" %}
+{% endblock  %}
 {% block content %}
 <form action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
   {% bootstrap_button "取引" %}
 </form>
-<form action="" method="post">
+<form class="cancel-form" action="" method="post">
   {% csrf_token %}
   <input type="submit" class="btn btn-primary" value="取引をキャンセル" name="cancel_trade">
+  {% if cancel_message %}
+  <p class="cancel-error">{{cancel_message}}</p>
+  {% endif %}
 </form>
-{% if cancel_message %}
-<p>{{cancel_message}}</p>
-{% endif %}
 
-{{request.user.username}}
 {% endblock  %}

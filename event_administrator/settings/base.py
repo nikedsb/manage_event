@@ -185,6 +185,36 @@ PIPELINE = {
             ],
             "output_filename": "manage_currency/css/login.css",
         },
+        "quiz": {
+            "source_filenames": [
+                "manage_currency/css/quiz.scss",
+            ],
+            "output_filename": "manage_currency/css/quiz.css",
+        },
+        "trade": {
+            "source_filenames": [
+                "manage_currency/css/trade.scss",
+            ],
+            "output_filename": "manage_currency/css/trade.css",
+        },
+        "trade-started": {
+            "source_filenames": [
+                "manage_currency/css/trade-started.scss",
+            ],
+            "output_filename": "manage_currency/css/trade-started.css",
+        },
+        "trade-finished": {
+            "source_filenames": [
+                "manage_currency/css/trade-finished.scss",
+            ],
+            "output_filename": "manage_currency/css/trade-finished.css",
+        },
+        "signup": {
+            "source_filenames": [
+                "manage_currency/css/signup.scss",
+            ],
+            "output_filename": "manage_currency/css/signup.css",
+        },
     },
     "JAVASCRIPT": {},
 }

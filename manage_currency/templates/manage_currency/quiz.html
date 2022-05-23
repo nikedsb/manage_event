@@ -2,7 +2,12 @@
 {% load django_bootstrap5 %}
 {% load pipeline %}
 {% block title %}Quiz{% endblock %}
+{% block extra_style %}{% stylesheet "quiz" %}{% endblock  %}
 {% block content %}
+<div class="quiz">
+  <h2>第{{quiz_num}}問</h2>
+  <p class="quiz__content">{{quiz.content}}</p>
+</div>
 <form action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}

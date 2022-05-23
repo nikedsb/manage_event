@@ -67,11 +67,14 @@ class QuizView(LoginRequiredMixin, FormView):
             return HttpResponseForbidden()
         quiz_num = self.kwargs["quiz_num"]
         answered_quizes_num = FinishedQuiz.objects.filter(team=self.request.user.group).count()
+        all_quizes = Quiz.objects.filter(is_active=True).count()
         print(answered_quizes_num)
         print(quiz_num)
         # 二回目以降の解答をしようとしていた場合、あるいは先に問題に取り組もうとした場合
         if not answered_quizes_num == quiz_num - 1:
             return redirect("quiz", answered_quizes_num + 1)
+        elif all_quizes <= answered_quizes_num:
+            return redirect("top")
 
         return super().get(request, *args, **kwargs)
 
@@ -131,6 +134,18 @@ class QuizView(LoginRequiredMixin, FormView):
     def form_invalid(self, form, *args, **kwargs):
         print("不正な値")
         return super().form_invalid(form, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        quiz_num = self.kwargs["quiz_num"]
+        quiz = Quiz.objects.filter(is_active=True, primary=quiz_num).first()
+        context.update(
+            {
+                "quiz": quiz,
+                "quiz_num": quiz_num,
+            }
+        )
+        return context
 
 
 class TradeView(LoginRequiredMixin, FormView):

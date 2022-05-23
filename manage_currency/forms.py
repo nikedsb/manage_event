@@ -13,6 +13,10 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = Member
         fields = ("username", "job")
+        labels = {"job": "分類"}
+        help_texts = {
+            "username": "",
+        }
 
 
 class QuizForm(forms.Form):
@@ -20,9 +24,7 @@ class QuizForm(forms.Form):
         def label_from_instance(self, obj):
             return obj.option
 
-    option = QuizChoiceField(
-        queryset=QuizOption.objects.all(),
-    )
+    option = QuizChoiceField(queryset=QuizOption.objects.all(), label="選択肢")
 
     # def __init__(self, option=None, *args, **kwargs):
     #     # base_filedにフィールドが入っていて、インスタンスごとにコピーされる→Bseformのコンストラクタで
@@ -41,10 +43,14 @@ class QuizForm(forms.Form):
 
 class TradeForm(forms.Form):
     # trade_with = forms.ModelChoiceField(queryset=Member.objects.all())
-    trade_with = forms.IntegerField(validators=[MinValueValidator(1)])
-    star = forms.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(200)])
-    cash = forms.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1000000)])
-    is_sender = forms.BooleanField(required=False)
+    trade_with = forms.IntegerField(validators=[MinValueValidator(1)], label="取引相手のID")
+    star = forms.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(200)], label="DeMiStar"
+    )
+    cash = forms.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(1000000)], label="DeMiCash"
+    )
+    is_sender = forms.BooleanField(required=False, label="送信者はチェックをつけてください。")
 
     def clean(self):
         self.cleaned_data = super().clean()

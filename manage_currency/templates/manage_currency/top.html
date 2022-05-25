@@ -16,6 +16,11 @@
     <p class="user-info__star--label">DeMiStar：</p>
     <p class="user-info__star--content">{{star | star_display}}({{star}})</p>
   </div>
-  <p class="user-info__cash">DeMiCash：{{cash}}DeC</p>
+  <div class="user-info__cash">
+    <p class="user-info__cash--content">DeMiCash：{{cash}} <span>DeC</span></p>
+    <a class="user-info__cash--btn btn btn-primary" href="{% url 'top' %}">情報を更新</a>
+  </div>
+
 </div>
+
 {% endblock  %}

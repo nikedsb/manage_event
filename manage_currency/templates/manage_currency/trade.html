@@ -1,21 +1,58 @@
 {% extends 'manage_currency/base.html' %}
 {% load django_bootstrap5 %}
 {% load pipeline %}
+{% load star_display %}
 {% block extra_style %}
 {% stylesheet "trade" %}
 {% endblock  %}
 {% block content %}
+<div class="user-info">
+  <p class="user-info__name">ユーザーネーム：{{request.user.username}}</p>
+  <p class="user-info__id">ユーザーID：{{request.user.id}}</p>
+  <div class="user-info__star">
+    <p class="user-info__star--label">DeMiStar：</p>
+    <p class="user-info__star--content">{{star | star_display}}({{star}})</p>
+  </div>
+  <p class="user-info__cash">DeMiCash：{{cash}}DeC</p>
+</div>
 <form action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
   {% bootstrap_button "取引" %}
 </form>
+<div class="transaction">
+  <p class="transaction__title">現在申請中の取引</p>
+  <div class="transaction__content">
+    {% if transaction %}
+    <div class="transaction__content--detail">
+      <p>送信者：</p>
+      <p>{{transaction.send_from.username}}（ID:{{transaction.send_from.id}}）</p>
+    </div>
+    <div class="transaction__content--detail">
+      <p>受信者：</p>
+      <p>{{transaction.send_to.username}}（ID:{{transaction.send_to.id}}）</p>
+    </div>
+    <div class="transaction__content--detail">
+      <p>取引するDeMiStar：</p>
+      <p class="value star">{{transaction.star|star_display}}({{transaction.star}})</p>
+    </div>
+    <div class="transaction__content--detail">
+      <p>取引するDeMiCash：</p>
+      <p class="value">{{transaction.cash}} DeC</p>
+    </div>
+    {% else %}
+    <p class="transaction__None">
+      申請中の取引はありません
+    </p>
+    {% endif %}
+  </div>
+</div>
 <form class="cancel-form" action="" method="post">
   {% csrf_token %}
-  <input type="submit" class="btn btn-primary" value="取引をキャンセル" name="cancel_trade">
   {% if cancel_message %}
   <p class="cancel-error">{{cancel_message}}</p>
   {% endif %}
+  <input type="submit" class="btn btn-primary" value="取引をキャンセル" name="cancel_trade">
 </form>
 
 {% endblock  %}

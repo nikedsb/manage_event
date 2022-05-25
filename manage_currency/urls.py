@@ -44,7 +44,7 @@ urlpatterns = [
         name="trade_started",
     ),
     path(
-        "purchase_done",
+        "purchase_done/",
         TemplateView.as_view(template_name="manage_currency/purchase-done.html"),
         name="purchase_done",
     ),

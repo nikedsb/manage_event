@@ -11,8 +11,5 @@
 <form action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
-  {{form.errors}}
-  {{form.non_field_errors}}
-  {% bootstrap_button "送信" %}
 </form>
 {% endblock %}

@@ -1,5 +1,23 @@
 @import "_variables.scss";
 
+main {
+  margin-top: 56px;
+}
+
+.wallet {
+  &__content {
+    display: flex;
+    margin: 10px 16px;
+    justify-content: center;
+    background-color: rgb(248, 249, 250);
+    border-radius: 10px;
+
+    p {
+      margin: 10px 0;
+    }
+  }
+}
+
 .product {
   @include product-detail;
 }

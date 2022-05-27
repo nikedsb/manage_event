@@ -32,11 +32,13 @@
             <a class="nav-link text-muted" href="{% url 'top' %}">トップ</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-muted" href="{% url 'product_list' %}">商品一覧</a>
+            <a class="nav-link text-muted" href="{% url 'product_list' %}">商品一覧</a>
           </li>
+          {% if leader == request.user %}
           <li class="nav-item">
             <a class="nav-link text-muted" href="{% url 'quiz' 1 %}">クイズ</a>
           </li>
+          {% endif %}
           <li class="nav-item">
             <a class="nav-link text-muted" href="{% url 'trade' %}">取引</a>
           </li>
@@ -46,6 +48,7 @@
         </ul>
       </div>
     </nav>
+    div
   </header>
   <main>
     {% block content %}{% endblock  %}
@@ -60,6 +63,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
     integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
   </script>
+  {% block script %}{% endblock  %}
 </body>
 
 </html>

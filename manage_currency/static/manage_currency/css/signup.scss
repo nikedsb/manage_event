@@ -1,5 +1,9 @@
 @import "_variables.scss";
 
+main {
+  margin-top: 64px;
+}
+
 form {
   @include form;
 }

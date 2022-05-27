@@ -18,8 +18,8 @@ SECRET_KEY = os.getenv(
 
 DEBUG = strtobool(os.getenv("DEBUG", "n"))
 
-ALLOWED_HOSTS = [s.strip() for s in os.getenv("ALLOWED_HOSTS", "").split(",") if s]
-
+# ALLOWED_HOSTS = [s.strip() for s in os.getenv("ALLOWED_HOSTS", "").split(",") if s]
+ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
@@ -215,6 +215,18 @@ PIPELINE = {
             ],
             "output_filename": "manage_currency/css/signup.css",
         },
+        "purchase-done": {
+            "source_filenames": [
+                "manage_currency/css/purchase-done.scss",
+            ],
+            "output_filename": "manage_currency/css/purchase-done.css",
+        },
+        "ranking": {
+            "source_filenames": [
+                "manage_currency/css/ranking.scss",
+            ],
+            "output_filename": "manage_currency/css/ranking.css",
+        },
     },
     "JAVASCRIPT": {},
 }
@@ -224,3 +236,5 @@ AUTH_USER_MODEL = "manage_currency.Member"
 LOGIN_URL = "/event/login/"
 LOGIN_REDIRECT_URL = "/event/top/"
 LOGOUT_REDIRECT_URL = LOGIN_URL
+
+CSRF_TRUSTED_ORIGINS = ["https://23e4-2400-4168-19d-c800-a9cc-12f2-3972-2e77.jp.ngrok.io"]

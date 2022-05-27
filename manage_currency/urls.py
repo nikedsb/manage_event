@@ -5,7 +5,15 @@ from django.urls import path
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.views.generic import TemplateView, CreateView
-from .views import PurchaseView, ProductListView, SignUpView, QuizView, TradeView, TopView
+from .views import (
+    PurchaseView,
+    ProductListView,
+    SignUpView,
+    QuizView,
+    TradeView,
+    TopView,
+    RankingView,
+)
 
 urlpatterns = [
     path("top/", TopView.as_view(), name="top"),
@@ -44,8 +52,13 @@ urlpatterns = [
         name="trade_started",
     ),
     path(
-        "purchase_done",
+        "purchase_done/",
         TemplateView.as_view(template_name="manage_currency/purchase-done.html"),
         name="purchase_done",
+    ),
+    path(
+        "ranking/",
+        RankingView.as_view(),
+        name="ranking",
     ),
 ]

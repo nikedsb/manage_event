@@ -1,0 +1,18 @@
+main {
+  display: flex;
+  gap: 30px;
+}
+
+.table {
+  width: 50vw;
+}
+
+.star-col {
+  max-width: 25vw;
+  word-wrap: break-word;
+  color: blueviolet !important;
+}
+
+header {
+  text-align: center;
+}

@@ -3,6 +3,12 @@
 {% load pipeline %}
 {% block extra_style %}{% stylesheet "purchase" %}{% endblock  %}
 {% block content %}
+<div class="wallet">
+  <div class="wallet__content">
+    <p>DeMiCash残高：</p>
+    <p>{{wallet.cash}} DeC</p>
+  </div>
+</div>
 <div class="product">
   <div class="product__item text-primary">
     <img src="{{product.image.url}}" alt="">

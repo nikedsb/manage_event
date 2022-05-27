@@ -1,0 +1,68 @@
+{% load django_bootstrap5 %}
+{% load pipeline %}
+{% load star_display %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ランキング</title>
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+  {% stylesheet "ranking" %}
+</head>
+
+<body>
+  <header>
+    <h1 class="text-muted">👑Ranking👑</h1>
+  </header>
+  <main>
+    <table class="cash-ranking table table-striped table-hover">
+      <thead>
+        <tr>
+          <th class="col">#</th>
+          <th class="col">ユーザー名</th>
+          <th class="col">保有DeMiCash</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for wallet in wallets %}
+        <tr>
+          <th>{{forloop.counter}}位</th>
+          <td>{{wallet.user.username}}</td>
+          <td>{{wallet.cash}} DeC</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <table class="star-ranking table table-striped table-hover">
+      <thead>
+        <tr>
+          <th class="col">#</th>
+          <th class="col">ユーザー名</th>
+          <th class="col">保有DeMiStar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for star in stars %}
+        <tr>
+          <th>{{forloop.counter}}位</th>
+          <td>{{star.user.username}}</td>
+          <td class="star-col">{{star.star|star_display}}({{star.star}})</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </main>
+  <script>
+    const timer = 30000 // ミリ秒で間隔の時間を指定
+    window.addEventListener('load', function () {
+      setInterval('location.reload()', timer);
+    });
+
+  </script>
+</body>
+
+</html>

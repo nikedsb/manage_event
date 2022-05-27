@@ -3,6 +3,12 @@
 {% load pipeline %}
 {% block extra_style %}{% stylesheet "product-list" %}{% endblock  %}
 {% block content %}
+<div class="wallet">
+    <div class="wallet__content">
+      <p>DeMiCash残高：</p>
+      <p>{{wallet.cash}} DeC</p>
+    </div>
+  </div>
 <div class="product">
   {% for product in object_list %}
   <a class="product__item" href="{% url 'purchase' product.pk %}">

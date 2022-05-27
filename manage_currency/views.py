@@ -1,14 +1,14 @@
 from importlib.abc import SourceLoader
 import math
+from multiprocessing import get_context
 from re import template
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, request
 from django.template import context
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView
-from django.contrib.auth.views import LoginView
-from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db import models
 from .models import (
@@ -26,7 +26,14 @@ from .models import (
 )
 from .forms import PurchaseForm, SignUpForm, QuizForm, TradeForm
 from .variables import quiz_volume
-from django.http import HttpResponseForbidden
+
+
+def detect_leader(user):
+    leader = user.group.leader
+    if leader == user:
+        return {"leader": user}
+    else:
+        return {}
 
 
 # Create your views here.
@@ -37,7 +44,12 @@ class TopView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         wallet = Wallet.objects.get(user=self.request.user)
         star = Star.objects.get(user=self.request.user)
-        context.update({"star": star.star, "cash": wallet.cash})
+        purchases = Purchase.objects.select_related("product").filter(user=self.request.user)
+        if purchases.exists():
+            context.update({"star": star.star, "cash": wallet.cash, "purchases": purchases})
+        else:
+            context.update({"star": star.star, "cash": wallet.cash})
+        context.update(detect_leader(self.request.user))
         return context
 
 
@@ -66,10 +78,14 @@ class QuizView(LoginRequiredMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         team = self.request.user.group
+        # チームに入ってない場合はトップにリダイレクト
+        if team == None:
+            return redirect("top")
+
         # チームリーダーのみ回答可能
         # チームリーダーではない時
         if not team.leader == self.request.user:
-            return HttpResponseForbidden()
+            raise PermissionDenied()
         quiz_num = self.kwargs["quiz_num"]
         answered_quizes_num = FinishedQuiz.objects.filter(team=self.request.user.group).count()
         all_quizes = Quiz.objects.filter(is_active=True).count()
@@ -90,6 +106,14 @@ class QuizView(LoginRequiredMixin, FormView):
         quiz_options = QuizOption.objects.filter(quiz=quiz)
         form.fields["option"].queryset = quiz_options
         return form
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwgs = super().get_form_kwargs(*args, **kwargs)
+        team = self.request.user.group
+        quiz = Quiz.objects.filter(is_active=True, primary=self.kwargs["quiz_num"]).first()
+        kwgs.update({"team": team, "quiz": quiz})
+
+        return kwgs
 
     def get_success_url(self, *args, **kwargs):
         if self.kwargs["quiz_num"] == quiz_volume:
@@ -150,6 +174,7 @@ class QuizView(LoginRequiredMixin, FormView):
                 "quiz_num": quiz_num,
             }
         )
+        context.update(detect_leader(self.request.user))
         return context
 
 
@@ -249,19 +274,27 @@ class TradeView(LoginRequiredMixin, FormView):
             self.is_trade_done = False
         return super().form_valid(form, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_present:
+            return redirect("top")
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         # request.POSTからとってきて,キャンセルボタンが押された時に現在のTransactionをis_doneにする
         if "取引をキャンセル" in request.POST.getlist("cancel_trade"):
             # 自分が申請してるものをキャンセル。
             user = self.request.user
-            context = super().get_context_data(*args, **kwargs)
             try:
-                transaction = Transaction.objects.get(requested_by=user, is_done=False)
+                transaction = Transaction.objects.get(
+                    requested_by=user, is_done=False, is_canceled=False
+                )
                 transaction.is_canceled = True
                 transaction.save()
+                context = self.get_context_data(*args, **kwargs)
                 context["cancel_message"] = "申請した取引のキャンセルが完了しました。"
                 context["form"] = TradeForm()
             except:
+                context = self.get_context_data(*args, **kwargs)
                 context["cancel_message"] = "申請している取引はありません。"
                 context["form"] = TradeForm()
             return render(self.request, "manage_currency/trade.html", context)
@@ -279,11 +312,37 @@ class TradeView(LoginRequiredMixin, FormView):
             success_url = reverse_lazy("trade_started")
         return success_url
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        wallet = Wallet.objects.get(user=self.request.user)
+        star = Star.objects.get(user=self.request.user)
+        transaction_set = Transaction.objects.filter(
+            requested_by=self.request.user, is_done=False, is_canceled=False
+        )
+        context.update(detect_leader(self.request.user))
+        if transaction_set.exists():
+            context.update(
+                {"star": star.star, "cash": wallet.cash, "transaction": transaction_set.first()}
+            )
+        else:
+            context.update({"star": star.star, "cash": wallet.cash})
+        return context
+
 
 class ProductListView(LoginRequiredMixin, ListView):
     template_name = "manage_currency/product-list.html"
     model = Product
-    # getをオーバーライドしてStarの価格を更新
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_present:
+            return redirect("top")
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["wallet"] = Wallet.objects.get(user=self.request.user)
+        context.update(detect_leader(self.request.user))
+        return context
 
 
 class PurchaseView(LoginRequiredMixin, FormView):
@@ -291,16 +350,30 @@ class PurchaseView(LoginRequiredMixin, FormView):
     form_class = PurchaseForm
     success_url = reverse_lazy("purchase_done")
 
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_present:
+            return redirect("top")
+        return super().get(request, *args, **kwargs)
+
     def get_form_kwargs(self, *args, **kwargs):
         kwgs = super().get_form_kwargs(*args, **kwargs)
         user = self.request.user
-        kwgs["oneself"] = user
-        kwgs["quantity"] = (
-            int(self.request.POST.get("quantity")) if self.request.method == "POST" else None
-        )
         product = Product.objects.get(id=self.kwargs["pk"])
         self.product = product
-        kwgs["product"] = product
+        self.quantity = None
+        if self.request.method == "POST":
+            try:
+                self.quantity = int(float(self.request.POST.get("quantity")))
+                print(self.quantity)
+            except:
+                self.quantity = None
+        kwgs.update(
+            {
+                "product": product,
+                "quantity": self.quantity,
+                "oneself": user,
+            }
+        )
         return kwgs
 
     def form_valid(self, form, *args, **kwargs):
@@ -314,12 +387,18 @@ class PurchaseView(LoginRequiredMixin, FormView):
         self.product.stock -= quantity
         self.product.save()
         # 購入履歴更新
-        Purchase.objects.create(
+        purchase = Purchase.objects.create(
             user=self.request.user,
             product=self.product,
             quantity=quantity,
             is_delivered=False,
         )
+        if self.product.name == "DeMiStar":
+            purchase.is_delivered = True
+            purchase.save()
+            star = Star.objects.get(user=self.request.user)
+            star.star += quantity
+            star.save()
         # DeMiStarの価格リセット
         demi_star = Product.objects.get(name="DeMiStar")
         initial_all_cash = AllCash.objects.all().first().all_cash
@@ -332,5 +411,25 @@ class PurchaseView(LoginRequiredMixin, FormView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         product = Product.objects.get(id=self.kwargs["pk"])
-        context.update({"product": product})
+        wallet = Wallet.objects.get(user=self.request.user)
+        context.update({"product": product, "wallet": wallet})
+        context.update(detect_leader(self.request.user))
+        return context
+
+
+class RankingView(TemplateView):
+    template_name = "manage_currency/ranking.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        wallets = (
+            Wallet.objects.select_related("user").filter(user__is_present=True).order_by("-cash")
+        )
+        stars = Star.objects.select_related("user").filter(user__is_present=True).order_by("-star")
+        context.update(
+            {
+                "wallets": wallets,
+                "stars": stars,
+            }
+        )
         return context

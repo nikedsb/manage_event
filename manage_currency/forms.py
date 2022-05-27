@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Member, Purchase, QuizOption, Transaction, Star, Wallet
+from .models import FinishedQuiz, Member, Purchase, QuizOption, Transaction, Star, Wallet
 
 
 class SignUpForm(UserCreationForm):
@@ -33,8 +33,18 @@ class QuizForm(forms.Form):
     #     print()
     #     super().__init__(**kwargs)
 
-    # def clean_option(self):
-    #     return self.cleaned_data["option"]
+    def clean_option(self):
+        # 二回目の送信の時
+        try:
+            finished_quiz = FinishedQuiz.objects.get(team=self.team, quiz=self.quiz)
+            raise ValidationError("一度回答を送信しています。メニューの「クイズ」を押してください。")
+        except ObjectDoesNotExist:
+            return self.cleaned_data.get("option")
+
+    def __init__(self, team=None, quiz=None, *args, **kwargs):
+        self.team = team
+        self.quiz = quiz
+        return super().__init__(*args, **kwargs)
 
     # def clean(self, *args, **kwargs):
     #     self.cleaned_data = super().clean(**kwargs)
@@ -42,15 +52,14 @@ class QuizForm(forms.Form):
 
 
 class TradeForm(forms.Form):
-    # trade_with = forms.ModelChoiceField(queryset=Member.objects.all())
+    is_sender = forms.BooleanField(required=False, label="送信者はチェックをつけてください。", initial=True)
     trade_with = forms.IntegerField(validators=[MinValueValidator(1)], label="取引相手のID")
     star = forms.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(200)], label="DeMiStar"
+        validators=[MinValueValidator(0), MaxValueValidator(200)], label="送受信するDeMiStar"
     )
     cash = forms.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(1000000)], label="DeMiCash"
+        validators=[MinValueValidator(0), MaxValueValidator(1000000)], label="送受信するDeMiCash"
     )
-    is_sender = forms.BooleanField(required=False, label="送信者はチェックをつけてください。")
 
     def clean(self):
         self.cleaned_data = super().clean()
@@ -120,7 +129,7 @@ class TradeForm(forms.Form):
 
 
 class PurchaseForm(forms.Form):
-    quantity = forms.IntegerField(min_value=1, max_value=30, label="購入数")
+    quantity = forms.IntegerField(min_value=1, max_value=60, label="購入数")
 
     def __init__(self, oneself=None, quantity=None, product=None, *args, **kwargs):
         self.oneself = oneself
@@ -129,11 +138,30 @@ class PurchaseForm(forms.Form):
         return super().__init__(*args, **kwargs)
 
     def clean_quantity(self):
-        price_sum = self.product.price * self.quantity
-        wallet = Wallet.objects.get(user=self.oneself)
-        if wallet.cash < price_sum:
-            self.add_error("quantity", "保有額より高額な購入はできません")
-        if self.quantity > self.product.stock:
-            self.add_error("quantity", "購入量分の在庫がありません")
-        self.cleaned_data["price_sum"] = price_sum
+        if self.quantity != None:
+            price_sum = self.product.price * self.quantity
+            wallet = Wallet.objects.get(user=self.oneself)
+            try:
+
+                # 自分が送信者であるような申請中の取引がある場合
+                transaction = Transaction.objects.get(
+                    requested_by=self.oneself,
+                    send_from=self.oneself,
+                    is_canceled=False,
+                    is_done=False,
+                )
+                print(wallet.cash, transaction.cash)
+                traded_cash = transaction.cash
+                if wallet.cash - traded_cash < price_sum:
+                    self.add_error("quantity", "購入額+取引申請額が保有額を超えています。")
+            except:
+                # 自分が送信者であるような申請中の取引がない場合
+                if wallet.cash < price_sum:
+                    self.add_error("quantity", "保有額より高額な購入はできません")
+            if self.quantity > self.product.stock:
+                self.add_error("quantity", "購入量分の在庫がありません")
+
+            self.cleaned_data["price_sum"] = price_sum
+        else:
+            raise ValidationError("整数を入力してください。")
         return self.quantity

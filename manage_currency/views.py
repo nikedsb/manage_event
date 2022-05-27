@@ -27,10 +27,13 @@ from .variables import quiz_volume
 
 
 def detect_leader(user):
-    leader = user.group.leader
-    if leader == user:
-        return {"leader": user}
-    else:
+    try:
+        leader = user.group.leader
+        if leader == user:
+            return {"leader": user}
+        else:
+            return {}
+    except:
         return {}
 
 
@@ -42,11 +45,22 @@ class TopView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         wallet = Wallet.objects.get(user=self.request.user)
         star = Star.objects.get(user=self.request.user)
+        try:
+            leader_name = self.request.user.group.leader.username
+        except:
+            leader_name = "なし"
         purchases = Purchase.objects.select_related("product").filter(user=self.request.user)
         if purchases.exists():
-            context.update({"star": star.star, "cash": wallet.cash, "purchases": purchases})
+            context.update(
+                {
+                    "star": star.star,
+                    "cash": wallet.cash,
+                    "purchases": purchases,
+                    "leader_name": leader_name,
+                }
+            )
         else:
-            context.update({"star": star.star, "cash": wallet.cash})
+            context.update({"star": star.star, "cash": wallet.cash, "leader_name": leader_name})
         context.update(detect_leader(self.request.user))
         return context
 
@@ -309,12 +323,21 @@ class TradeView(LoginRequiredMixin, FormView):
             requested_by=self.request.user, is_done=False, is_canceled=False
         )
         context.update(detect_leader(self.request.user))
+        try:
+            leader_name = self.request.user.group.leader.username
+        except:
+            leader_name = "なし"
         if transaction_set.exists():
             context.update(
-                {"star": star.star, "cash": wallet.cash, "transaction": transaction_set.first()}
+                {
+                    "star": star.star,
+                    "cash": wallet.cash,
+                    "transaction": transaction_set.first(),
+                    "leader_name": leader_name,
+                }
             )
         else:
-            context.update({"star": star.star, "cash": wallet.cash})
+            context.update({"star": star.star, "cash": wallet.cash, "leader_name": leader_name})
         return context
 
 

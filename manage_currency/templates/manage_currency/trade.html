@@ -9,6 +9,7 @@
 <div class="user-info">
   <p class="user-info__name">ユーザーネーム：{{request.user.username}}</p>
   <p class="user-info__id">ユーザーID：{{request.user.id}}</p>
+  <p class="user-info__leader_name">チームリーダー：{{leader_name}}</p>
   <div class="user-info__star">
     <p class="user-info__star--label">DeMiStar：</p>
     <p class="user-info__star--content">{{star | star_display}}({{star}})</p>

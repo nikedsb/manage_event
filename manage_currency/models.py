@@ -1,10 +1,6 @@
-from pyexpat import model
-from turtle import mode
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.forms import CharField
-from soupsieve import select
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Team(models.Model):

@@ -1,10 +1,7 @@
-from manage_currency.models import Purchase
-from os import name
-from re import template
 from django.urls import path
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView
 from .views import (
     PurchaseView,
     ProductListView,

@@ -1,10 +1,8 @@
-from itertools import product
 from django import forms
 from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
-from django.forms.utils import ErrorList
 from django.core.exceptions import ObjectDoesNotExist
 from .models import FinishedQuiz, Member, Purchase, QuizOption, Transaction, Star, Wallet
 

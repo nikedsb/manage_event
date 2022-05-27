@@ -1,30 +1,28 @@
-from importlib.abc import SourceLoader
 import math
-from multiprocessing import get_context
-from re import template
-from django.shortcuts import get_object_or_404, redirect, render
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, request
-from django.template import context
-from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, FormView, ListView
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 from django.db import models
+from django.db.models import Q
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, request
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, FormView, ListView, TemplateView
+
+from .forms import PurchaseForm, QuizForm, SignUpForm, TradeForm
 from .models import (
     AllCash,
     FinishedQuiz,
     Member,
-    Quiz,
-    QuizOption,
-    Team,
-    Wallet,
-    Star,
     Product,
     Purchase,
+    Quiz,
+    QuizOption,
+    Star,
+    Team,
     Transaction,
+    Wallet,
 )
-from .forms import PurchaseForm, SignUpForm, QuizForm, TradeForm
 from .variables import quiz_volume
 
 

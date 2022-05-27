@@ -1,9 +1,5 @@
-from tokenize import group
-
-from django.db import IntegrityError
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     Member,
     Team,

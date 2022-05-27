@@ -52,7 +52,7 @@ class QuizForm(forms.Form):
 
 
 class TradeForm(forms.Form):
-    is_sender = forms.BooleanField(required=False, label="送信者はチェックをつけてください。")
+    is_sender = forms.BooleanField(required=False, label="送信者はチェックをつけてください。", initial=True)
     trade_with = forms.IntegerField(validators=[MinValueValidator(1)], label="取引相手のID")
     star = forms.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(200)], label="送受信するDeMiStar"
@@ -141,10 +141,26 @@ class PurchaseForm(forms.Form):
         if self.quantity != None:
             price_sum = self.product.price * self.quantity
             wallet = Wallet.objects.get(user=self.oneself)
-            if wallet.cash < price_sum:
-                self.add_error("quantity", "保有額より高額な購入はできません")
+            try:
+
+                # 自分が送信者であるような申請中の取引がある場合
+                transaction = Transaction.objects.get(
+                    requested_by=self.oneself,
+                    send_from=self.oneself,
+                    is_canceled=False,
+                    is_done=False,
+                )
+                print(wallet.cash, transaction.cash)
+                traded_cash = transaction.cash
+                if wallet.cash - traded_cash < price_sum:
+                    self.add_error("quantity", "購入額+取引申請額が保有額を超えています。")
+            except:
+                # 自分が送信者であるような申請中の取引がない場合
+                if wallet.cash < price_sum:
+                    self.add_error("quantity", "保有額より高額な購入はできません")
             if self.quantity > self.product.stock:
                 self.add_error("quantity", "購入量分の在庫がありません")
+
             self.cleaned_data["price_sum"] = price_sum
         else:
             raise ValidationError("整数を入力してください。")

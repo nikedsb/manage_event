@@ -1,13 +1,28 @@
-{% extends 'manage_currency/base.html' %}
 {% load django_bootstrap5 %}
 {% load pipeline %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block extra_style %}{% stylesheet "login" %}{% endblock  %}
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+  {% stylesheet "login" %}
 
-{% block content %}
-<form action="" method="post">
-  {% csrf_token %}
-  {% bootstrap_form form %}
-  {% bootstrap_button "ログイン" %}
-</form>
-{% endblock  %}
+  <title>Signup</title>
+</head>
+
+<body>
+  <main>
+    <form action="" method="post">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      {% bootstrap_button "ログイン" %}
+    </form>
+    <a class="signup" href="{% url 'signup' %}">アカウント作成はこちら</a>
+  </main>
+</body>
+
+</html>

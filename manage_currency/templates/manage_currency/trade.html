@@ -18,7 +18,7 @@
 <form action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
-  {% bootstrap_button "取引" %}
+  <input type="submit" class="btn btn-primary" id="trade-btn" value="送信">
 </form>
 <div class="transaction">
   <p class="transaction__title">現在申請中の取引</p>
@@ -54,5 +54,18 @@
   {% endif %}
   <input type="submit" class="btn btn-primary" value="取引をキャンセル" name="cancel_trade">
 </form>
+{% block script %}
+<script>
+  checkBox = document.getElementById("id_is_sender")
+  tradeBtn = document.getElementById("trade-btn");
+  checkBox.onchange = function () {
+    if (checkBox.checked) {
+      tradeBtn.value = "送信";
+    } else {
+      tradeBtn.value = "受信";
+    }
+  }
 
+</script>
+{% endblock  %}
 {% endblock  %}

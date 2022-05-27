@@ -1,12 +1,27 @@
-{% extends 'manage_currency/base.html' %}
 {% load django_bootstrap5 %}
 {% load pipeline %}
-{% block extra_style %}{% stylesheet "signup" %}{% endblock  %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<form action="" method="post">
-  {% csrf_token %}
-  {% bootstrap_form form %}
-  {% bootstrap_button "送信" %}
-</form>
-{% endblock  %}
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+  {% stylesheet "signup" %}
+
+  <title>Signup</title>
+</head>
+
+<body>
+  <main>
+    <form action="" method="post">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      {% bootstrap_button "送信" %}
+    </form>
+  </main>
+</body>
+
+</html>

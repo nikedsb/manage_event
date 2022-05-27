@@ -221,6 +221,12 @@ PIPELINE = {
             ],
             "output_filename": "manage_currency/css/purchase-done.css",
         },
+        "ranking": {
+            "source_filenames": [
+                "manage_currency/css/ranking.scss",
+            ],
+            "output_filename": "manage_currency/css/ranking.css",
+        },
     },
     "JAVASCRIPT": {},
 }
@@ -231,4 +237,4 @@ LOGIN_URL = "/event/login/"
 LOGIN_REDIRECT_URL = "/event/top/"
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
-CSRF_TRUSTED_ORIGINS = ["https://f96b-2400-4168-2992-5400-719d-709b-448a-fcea.jp.ngrok.io"]
+CSRF_TRUSTED_ORIGINS = ["https://23e4-2400-4168-19d-c800-a9cc-12f2-3972-2e77.jp.ngrok.io"]

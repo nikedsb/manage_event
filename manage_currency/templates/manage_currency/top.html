@@ -20,7 +20,25 @@
     <p class="user-info__cash--content">DeMiCash：{{cash}} <span>DeC</span></p>
     <a class="user-info__cash--btn btn btn-primary" href="{% url 'top' %}">情報を更新</a>
   </div>
+</div>
 
+<div class="purchase">
+  <p class="purchase__title">購入履歴</p>
+  {% if purchases %}
+  {% for purchase in purchases %}
+  <div class="purchase__info">
+    <p class="purchase__info--name">{{purchase.product.name}}</p>
+    <p class="purchase__info--quantity">{{purchase.quantity}}個</p>
+    {% if purchase.is_delivered %}
+    <p class="purchase__info--is_delivered">受け取り済み</p>
+    {% else %}
+    <p class="purchase__info--is_delivered">未受け取り</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}
+  <p>購入履歴はありません</p>
+  {% endif %}
 </div>
 
 {% endblock  %}

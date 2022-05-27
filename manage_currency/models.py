@@ -110,6 +110,9 @@ class Answer(models.Model):
     )
     correct_option = models.OneToOneField("QuizOption", on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"第{self.quiz.primary}問目解答：{self.correct_option.option}"
+
 
 class QuizOption(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="quiz_of_option")

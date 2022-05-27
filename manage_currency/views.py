@@ -89,8 +89,6 @@ class QuizView(LoginRequiredMixin, FormView):
         quiz_num = self.kwargs["quiz_num"]
         answered_quizes_num = FinishedQuiz.objects.filter(team=self.request.user.group).count()
         all_quizes = Quiz.objects.filter(is_active=True).count()
-        print(answered_quizes_num)
-        print(quiz_num)
         # 二回目以降の解答をしようとしていた場合、あるいは先に問題に取り組もうとした場合
         if not answered_quizes_num == quiz_num - 1:
             return redirect("quiz", answered_quizes_num + 1)
@@ -155,13 +153,11 @@ class QuizView(LoginRequiredMixin, FormView):
                 # 正解の時
                 if finished_quiz.selected_choice == correct_answer:
                     score += 1
-                    print(score)
             group.score = score
             group.save()
         return super().form_valid(form, *args, **kwargs)
 
     def form_invalid(self, form, *args, **kwargs):
-        print("不正な値")
         return super().form_invalid(form, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -201,8 +197,6 @@ class TradeView(LoginRequiredMixin, FormView):
         else:
             sender = trade_with
             receiver = self.request.user
-        print("sender", sender)
-        print("receiver", receiver)
 
         # transactionを探す
         try:
@@ -214,17 +208,14 @@ class TradeView(LoginRequiredMixin, FormView):
                 is_done=False,
                 is_canceled=False,
             )
-            print(transaction)
+
             # 取引量の合意があるか
             if transaction.cash == cash and transaction.star == star:
                 sender_wallet = Wallet.objects.get(user=sender)
                 sender_star = Star.objects.get(user=sender)
                 receiver_wallet = Wallet.objects.get(user=receiver)
                 receiver_star = Star.objects.get(user=receiver)
-                print(sender_star)
-                print(sender_wallet)
-                print(receiver_star)
-                print(receiver_wallet)
+
                 # Starの取引
                 if star > 0:
                     sender_star.star -= star
@@ -243,7 +234,7 @@ class TradeView(LoginRequiredMixin, FormView):
                 # get_success_urlに引き渡す。
                 self.is_trade_done = True
             else:
-                print("エラー追加")
+
                 form.add_error(None, "スターおよびコインの取引量が合意された量ではありません。")
                 return self.render_to_response(self.get_context_data(form=form))
         except:

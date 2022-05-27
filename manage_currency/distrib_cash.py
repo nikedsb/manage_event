@@ -37,10 +37,7 @@ def calc_and_distrib_cash():
         same_rank_players = Member.objects.filter(group__score=score)
         # 重み付けの比率部分→適宜調整
         rank_sum += (i + 1) * same_rank_players.count()
-    print("rank_sum", rank_sum)
-    print(all_cash)
     unit = all_cash / rank_sum
-    print("unit", unit)
     wallet_list = []
     for j, score in enumerate(score_set):
         same_rank_players = Member.objects.filter(group__score=score)
@@ -56,7 +53,6 @@ def calc_and_distrib_cash():
             )
             wallet.cash = math.floor(cash)
             wallet_list.append(wallet)
-    print(wallet_list)
     Wallet.objects.bulk_update(wallet_list, fields=["cash"])
     # 合計キャッシュをデータベースに反映
     all_cash_instances = AllCash.objects.all()

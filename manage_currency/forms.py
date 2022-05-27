@@ -83,7 +83,7 @@ class TradeForm(forms.Form):
             transaction = Transaction.objects.filter(
                 is_canceled=False, is_done=False, requested_by=self.oneself
             )
-            print("自分自身", self.oneself)
+
             if transaction.exists():
                 self.add_error("trade_with", "すでに申請している取引があります。先に取引をキャンセルしてください。")
             self.cleaned_data.update({"sender": sender, "receiver": receiver})
@@ -150,7 +150,6 @@ class PurchaseForm(forms.Form):
                     is_canceled=False,
                     is_done=False,
                 )
-                print(wallet.cash, transaction.cash)
                 traded_cash = transaction.cash
                 if wallet.cash - traded_cash < price_sum:
                     self.add_error("quantity", "購入額+取引申請額が保有額を超えています。")

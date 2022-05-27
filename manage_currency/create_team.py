@@ -38,7 +38,6 @@ def culc_team_num(job):
         return team_dict
     # 　比率の整数除算
     ratio_int = players_num // mentors_num
-    print(ratio_int)
     if ratio_int >= 4:
         # メンターにつき人数が多すぎる時→どうしようもないのでそのまま
         # メンターにつき人数がちょうどよかった(4,5人)の時→そのまま
@@ -73,16 +72,12 @@ def create_team(team_dict):
     mentors = team_dict["mentors"].order_by("?")
     team_num = team_dict["team_num"]
     people_per_team = team_dict["people_per_team"]
-    print("チーム数", team_num)
-    print("１チームの人数", people_per_team)
     # 不正な値の場合は弾く
     if team_num == 0 or people_per_team == 0:
         return None
     # チーム数だけメンターを取得
     leaders = mentors[:team_num]
-    print("リーダーは", leaders)
     normal_mentors = None if team_num == mentors.count() else mentors[: team_num : mentors.count()]
-    print("非リーダー", normal_mentors)
     if normal_mentors:
         for normal_mentor in normal_mentors:
             # リーダーじゃない人間は雇用フラグを折る
@@ -106,16 +101,12 @@ def create_team(team_dict):
     # チームが入ってないものだけ取り出す。
     teams = Team.objects.filter(leader__job=team_dict["job"])
     normal_players = all_players.filter(group=None)
-    print("チームなし人間", normal_players, normal_players.count())
     for i, team in enumerate(teams):
         members_num = people_per_team - 1
-        print("現状の無所属人数", normal_players.count())
         if members_num <= normal_players.count():
             team_members = normal_players[:members_num]
-            print(i, team_members)
         else:
             team_members = normal_players[: normal_players.count()]
-            print("else", i, team_members)
         for team_member in team_members:
             team_member.group = team
             team_member.save()
@@ -163,7 +154,6 @@ def assign_no_team_players(en_no_team_dict, de_no_team_dict):
             engineer_team = Team.objects.filter(leader__job="Engineer").first()
             team_members_num = Member.objects.filter(group=engineer_team).count()
             for de_stray_person in de_stray_people:
-                print("エンジニアチームの人数は", team_members_num)
                 de_stray_person.group = engineer_team
                 de_stray_person.save()
                 team_members_num += 1
@@ -191,7 +181,6 @@ def assign_no_team_players(en_no_team_dict, de_no_team_dict):
             designer_team = Team.objects.filter(leader__job="Designer").first()
             team_members_num = Member.objects.filter(group=designer_team).count()
             for en_stray_person in en_stray_people:
-                print("デザイナーチームの人数は", team_members_num)
                 en_stray_person.group = designer_team
                 en_stray_person.save()
                 team_members_num += 1
@@ -226,5 +215,4 @@ def create_late_team():
         if late_people.exists():
             for late_person in late_people:
                 late_person.group = late_team
-                print(late_person.username)
                 late_person.save()
